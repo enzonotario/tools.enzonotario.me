@@ -53,5 +53,11 @@ export default defineNuxtConfig({
       redirectOn: 'root',
       alwaysRedirect: false
     }
+  },
+
+  vite: {
+    ssr: {
+      noExternal: ['xml-js']
+    }
   }
 })

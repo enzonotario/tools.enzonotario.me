@@ -102,5 +102,10 @@
   "Configure options and click Refresh to generate a token": "Configura las opciones y haz clic en Actualizar para generar un token",
   "Token copied": "Token copiado",
   "Token has been copied to clipboard": "El token ha sido copiado al portapapeles",
-  "Failed to copy token to clipboard": "Error al copiar el token al portapapeles"
+  "Failed to copy token to clipboard": "Error al copiar el token al portapapeles",
+  "Actions": "Acciones",
+  "Output format": "Formato de salida",
+  "Minified": "Minificado",
+  "Convert to JSON": "Convertir a JSON",
+  "Convert to XML": "Convertir a XML"
 }

@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@hendt/xml2json':
+        specifier: ^1.0.3
+        version: 1.0.3
       '@iconify-json/lucide':
         specifier: ^1.2.82
         version: 1.2.82
@@ -26,6 +29,9 @@ importers:
       '@vueuse/core':
         specifier: ^14.1.0
         version: 14.1.0(vue@3.5.26(typescript@5.9.3))
+      jstoxml:
+        specifier: ^7.0.1
+        version: 7.0.1
       lorem-ipsum:
         specifier: ^2.0.8
         version: 2.0.8
@@ -621,6 +627,9 @@ packages:
 
   '@floating-ui/vue@1.1.9':
     resolution: {integrity: sha512-BfNqNW6KA83Nexspgb9DZuz578R7HT8MZw1CfK9I6Ah4QReNWEJsXWHN+SdmOVLNGmTPDi+fDT535Df5PzMLbQ==}
+
+  '@hendt/xml2json@1.0.3':
+    resolution: {integrity: sha512-9BvcVYnHHS4QGyc1tfE1DBv5++i3DOF/w5hJOm4A5z6HfWd76nI1tBgVxj4LmtRFRRmQSHJm901qSBLXw10Obg==}
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -3617,6 +3626,9 @@ packages:
     resolution: {integrity: sha512-1e4qoRgnn448pRuMvKGsFFymUCquZV0mpGgOyIKNgD3JVDTsVJyRBGH/Fm0tBb8WsWGgmB1mDe6/yJMQM37DUA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
+  jstoxml@7.0.1:
+    resolution: {integrity: sha512-yqCv6FoW1uTqtqO/wqQzvdRhVp+iIFwu153pLdSmJwlRRW3+eRWwfHjCE1E+06hB17s934iFDZI1GW0g4QvA8w==}
+
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
@@ -5846,6 +5858,8 @@ snapshots:
     transitivePeerDependencies:
       - '@vue/composition-api'
       - vue
+
+  '@hendt/xml2json@1.0.3': {}
 
   '@humanfs/core@0.19.1': {}
 
@@ -9156,6 +9170,8 @@ snapshots:
       eslint-visitor-keys: 3.4.3
       espree: 9.6.1
       semver: 7.7.3
+
+  jstoxml@7.0.1: {}
 
   keyv@4.5.4:
     dependencies:

@@ -102,5 +102,10 @@
   "Configure options and click Refresh to generate a token": "Configure options and click Refresh to generate a token",
   "Token copied": "Token copied",
   "Token has been copied to clipboard": "Token has been copied to clipboard",
-  "Failed to copy token to clipboard": "Failed to copy token to clipboard"
+  "Failed to copy token to clipboard": "Failed to copy token to clipboard",
+  "Actions": "Actions",
+  "Output format": "Output format",
+  "Minified": "Minified",
+  "Convert to JSON": "Convert to JSON",
+  "Convert to XML": "Convert to XML"
 }
