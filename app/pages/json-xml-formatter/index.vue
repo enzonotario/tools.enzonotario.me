@@ -3,6 +3,11 @@ import JsonFormatter from '~/components/json-xml-formatter/JsonFormatter.vue'
 import XmlFormatter from '~/components/json-xml-formatter/XmlFormatter.vue'
 import { toXML } from 'jstoxml'
 import xml2json from '@hendt/xml2json'
+import yaml from 'js-yaml'
+import * as TOML from 'smol-toml'
+
+type FormatType = 'json' | 'xml' | 'yaml' | 'toml'
+type InputFormatType = FormatType | 'auto-detect'
 
 const { t } = useI18n()
 const toast = useToast()
@@ -15,21 +20,63 @@ const input = ref('')
 const output = ref('')
 const error = ref<string | null>(null)
 const sortKeys = ref(false)
-const outputFormat = ref<'json' | 'xml'>('json')
+const outputFormat = ref<FormatType>('json')
 const isMinified = ref(false)
-const inputFormat = ref<'json' | 'xml'>('json')
+const inputFormat = ref<InputFormatType>('auto-detect')
+const isManualSelection = ref(false)
+const detectedFormat = ref<FormatType>('json')
+
+// Function to detect format from content
+const detectFormat = (content: string): FormatType => {
+  if (!content.trim()) return 'json'
+
+  const trimmed = content.trim()
+
+  // Try JSON
+  try {
+    JSON.parse(trimmed)
+    return 'json'
+  } catch {}
+
+  // Try XML
+  if (trimmed.startsWith('<') && trimmed.includes('>')) {
+    return 'xml'
+  }
+
+  // Try TOML
+  if (trimmed.match(/^\[.+\]$|^[\w-]+\s*=\s*.+/m)) {
+    try {
+      TOML.parse(trimmed)
+      return 'toml'
+    } catch {}
+  }
+
+  // Try YAML
+  try {
+    yaml.load(trimmed)
+    return 'yaml'
+  } catch {}
+
+  return 'json'
+}
 
 const placeholder = computed(() => {
-  if (inputFormat.value === 'json') {
-    return t('Paste your JSON here')
+  if (inputFormat.value === 'auto-detect') {
+    return t('Paste your content here')
   }
-  if (inputFormat.value === 'xml') {
-    return t('Paste your XML here')
+  const formats: Record<FormatType, string> = {
+    json: t('Paste your JSON here'),
+    xml: t('Paste your XML here'),
+    yaml: t('Paste your YAML here'),
+    toml: t('Paste your TOML here')
   }
-  return t('Paste your JSON or XML here')
+  return formats[inputFormat.value] || t('Paste your content here')
 })
 
 const currentType = computed(() => {
+  if (inputFormat.value === 'auto-detect') {
+    return detectedFormat.value
+  }
   return inputFormat.value
 })
 
@@ -40,96 +87,97 @@ watch(currentType, (newType) => {
   }
 }, { immediate: true })
 
-// Convert JSON to XML using jstoxml
-const convertJsonToXml = async (jsonString: string): Promise<string | null> => {
+const convertToJson = async (content: string, fromFormat: FormatType): Promise<any> => {
+  switch (fromFormat) {
+    case 'json':
+      return JSON.parse(content)
+    case 'xml':
+      return xml2json(content)
+    case 'yaml':
+      return yaml.load(content)
+    case 'toml':
+      return TOML.parse(content)
+  }
+}
+
+const convertFromJson = (jsonObj: any, toFormat: FormatType): string => {
+  switch (toFormat) {
+    case 'json':
+      return JSON.stringify(jsonObj, null, 2)
+    case 'xml':
+      return toXML(jsonObj, { header: true, indent: '  ' })
+    case 'yaml':
+      return yaml.dump(jsonObj, { indent: 2, lineWidth: -1 })
+    case 'toml':
+      return TOML.stringify(jsonObj)
+  }
+}
+
+const convertFormat = async (content: string, from: FormatType, to: FormatType): Promise<string | null> => {
   if (!import.meta.client) return null
   try {
-    const jsonObj = JSON.parse(jsonString)
-    const xml = toXML(jsonObj, {
-      header: true,
-      indent: '  '
-    })
-    return xml
+    const jsonObj = await convertToJson(content, from)
+    return convertFromJson(jsonObj, to)
   } catch (e) {
-    console.error('Error converting JSON to XML:', e)
+    console.error(`Error converting ${from} to ${to}:`, e)
     return null
   }
 }
 
-// Convert XML to JSON using xml2json
-const convertXmlToJson = async (xmlString: string): Promise<string | null> => {
-  if (!import.meta.client) return null
+const minifyContent = (content: string, format: FormatType): string | null => {
   try {
-    const jsonObj = xml2json(xmlString)
-    return JSON.stringify(jsonObj, null, 2)
-  } catch (e) {
-    console.error('Error converting XML to JSON:', e)
+    switch (format) {
+      case 'json': {
+        const jsonObj = JSON.parse(content)
+        return JSON.stringify(jsonObj)
+      }
+      case 'xml':
+        return content.replace(/>\s+</g, '><').trim()
+      case 'yaml': {
+        const obj = yaml.load(content)
+        return yaml.dump(obj, { flowLevel: 0, lineWidth: -1 })
+      }
+      case 'toml': {
+        const obj = TOML.parse(content)
+        return TOML.stringify(obj)
+      }
+    }
+  } catch {
     return null
   }
-}
-
-// Minify JSON
-const minifyJson = (jsonString: string): string | null => {
-  try {
-    const jsonObj = JSON.parse(jsonString)
-    return JSON.stringify(jsonObj)
-  } catch (e) {
-    return null
-  }
-}
-
-// Minify XML
-const minifyXml = (xmlString: string): string => {
-  return xmlString.replace(/>\s+</g, '><').trim()
 }
 
 // Store converted output
 const convertedOutput = ref<string>('')
 
-// Watch for changes and perform conversion when needed
 watch([outputFormat, input, currentType], async () => {
   if (!input.value.trim()) {
     convertedOutput.value = ''
     return
   }
 
-  // Only convert if output format differs from input type
   if (outputFormat.value !== currentType.value) {
-    convertedOutput.value = ''
-    if (outputFormat.value === 'xml' && currentType.value === 'json') {
-      const converted = await convertJsonToXml(input.value)
-      convertedOutput.value = converted || ''
-    } else if (outputFormat.value === 'json' && currentType.value === 'xml') {
-      const converted = await convertXmlToJson(input.value)
-      convertedOutput.value = converted || ''
-    }
+    const converted = await convertFormat(input.value, currentType.value, outputFormat.value)
+    convertedOutput.value = converted || ''
   } else {
     convertedOutput.value = ''
   }
 }, { immediate: true })
 
-// Get the final output based on format and minification settings
 const finalOutput = computed(() => {
   if (!input.value.trim()) return ''
 
   let result = ''
 
-  // If output format matches input type, use the formatted output
   if (outputFormat.value === currentType.value) {
     result = output.value
   } else {
-    // Use converted output
     result = convertedOutput.value
   }
 
-  // Minify if requested
   if (isMinified.value && result) {
-    if (outputFormat.value === 'json') {
-      const minified = minifyJson(result)
-      return minified || result
-    } else {
-      return minifyXml(result)
-    }
+    const minified = minifyContent(result, outputFormat.value)
+    return minified || result
   }
 
   return result
@@ -172,73 +220,67 @@ const handleErrorUpdate = (value: string | null) => {
   error.value = value
 }
 
-// Track if we should skip conversion (to avoid loops)
 const skipConversion = ref(false)
 
-// Watch inputFormat changes and convert input accordingly
+// Detect format when input changes
+watch(input, (newInput) => {
+  if (inputFormat.value === 'auto-detect') {
+    detectedFormat.value = detectFormat(newInput)
+  }
+  // Reset to auto-detect when input changes (unless manually selected)
+  if (newInput.trim() && isManualSelection.value) {
+    isManualSelection.value = false
+    inputFormat.value = 'auto-detect'
+    detectedFormat.value = detectFormat(newInput)
+  }
+
+  // Clear error when input changes - will be re-evaluated by formatters
+  if (error.value) {
+    error.value = null
+  }
+})
+
+// Handle manual format selection
 watch(inputFormat, async (newFormat, oldFormat) => {
+  if (newFormat === 'auto-detect') {
+    detectedFormat.value = detectFormat(input.value)
+    isManualSelection.value = false
+    return
+  }
+
+  // Mark as manual selection only if user explicitly changed it
+  if (oldFormat !== newFormat) {
+    isManualSelection.value = true
+  }
+
   if (!input.value.trim() || newFormat === oldFormat || skipConversion.value) return
 
   skipConversion.value = true
   try {
-    if (newFormat === 'xml' && oldFormat === 'json') {
-      // Convert current JSON input to XML
-      const converted = await convertJsonToXml(input.value)
-      if (converted) {
-        input.value = converted
-      }
-    } else if (newFormat === 'json' && oldFormat === 'xml') {
-      // Convert current XML input to JSON
-      const converted = await convertXmlToJson(input.value)
-      if (converted) {
-        input.value = converted
-      }
+    const actualOldFormat: FormatType = oldFormat === 'auto-detect' ? detectedFormat.value : oldFormat as FormatType
+    const converted = await convertFormat(input.value, actualOldFormat, newFormat as FormatType)
+    if (converted) {
+      input.value = converted
     }
   } catch (e) {
     console.error('Error converting input format:', e)
   } finally {
-    // Reset skip flag after a short delay
     setTimeout(() => {
       skipConversion.value = false
     }, 100)
+  }
+})
+
+// Initial format detection
+onMounted(() => {
+  if (input.value.trim() && inputFormat.value === 'auto-detect') {
+    detectedFormat.value = detectFormat(input.value)
   }
 })
 </script>
 
 <template>
   <div class="w-full h-full split-pane-wrapper">
-    <Teleport to="#header-actions-portal">
-      <div class="flex items-center gap-2">
-        <UButton
-          size="sm"
-          color="primary"
-          icon="i-lucide-copy"
-          :disabled="!finalOutput && !output"
-          @click="copyToClipboard"
-        >
-          {{ $t('Copy') }}
-        </UButton>
-
-        <div
-          v-if="currentType === 'json'"
-          class="flex items-center gap-2"
-        >
-          <USwitch v-model="sortKeys" />
-          <span class="text-sm text-gray-700 dark:text-gray-300">{{ $t('Sort keys') }}</span>
-        </div>
-
-        <UButton
-          variant="outline"
-          size="sm"
-          color="neutral"
-          icon="i-lucide-x"
-          @click="clearAll"
-        >
-          {{ $t('Clear') }}
-        </UButton>
-      </div>
-    </Teleport>
-
     <ClientOnly>
       <SplitPane
         split="vertical"
@@ -254,17 +296,33 @@ watch(inputFormat, async (newFormat, oldFormat) => {
                 <USelectMenu
                   v-model="inputFormat"
                   :items="[
+                    { label: $t('Auto-detect'), value: 'auto-detect' },
                     { label: 'JSON', value: 'json' },
-                    { label: 'XML', value: 'xml' }
+                    { label: 'XML', value: 'xml' },
+                    { label: 'YAML', value: 'yaml' },
+                    { label: 'TOML', value: 'toml' }
                   ]"
                   value-key="value"
                   label-key="label"
                   size="sm"
                 >
                   <template #label>
-                    <span class="text-sm">{{ $t('Input format') }}: {{ inputFormat.toUpperCase() }}</span>
+                    <span class="text-sm">
+                      {{ $t('Input format') }}:
+                      {{ inputFormat === 'auto-detect' ? $t('Auto-detect') + ' (' + currentType.toUpperCase() + ')' : inputFormat.toUpperCase() }}
+                    </span>
                   </template>
                 </USelectMenu>
+
+                <UButton
+                  variant="outline"
+                  size="sm"
+                  color="neutral"
+                  icon="i-lucide-x"
+                  @click="clearAll"
+                >
+                  {{ $t('Clear') }}
+                </UButton>
               </div>
             </div>
             <div class="flex-1 flex flex-col min-h-0">
@@ -300,11 +358,23 @@ watch(inputFormat, async (newFormat, oldFormat) => {
           <div class="flex flex-col h-full p-1 space-y-2">
             <div class="shrink-0">
               <div class="flex items-center gap-3 flex-wrap">
+                <UButton
+                  size="sm"
+                  color="primary"
+                  icon="i-lucide-copy"
+                  :disabled="!finalOutput && !output"
+                  @click="copyToClipboard"
+                >
+                  {{ $t('Copy') }}
+                </UButton>
+
                 <USelectMenu
                   v-model="outputFormat"
                   :items="[
                     { label: 'JSON', value: 'json' },
-                    { label: 'XML', value: 'xml' }
+                    { label: 'XML', value: 'xml' },
+                    { label: 'YAML', value: 'yaml' },
+                    { label: 'TOML', value: 'toml' }
                   ]"
                   value-key="value"
                   label-key="label"
@@ -324,6 +394,15 @@ watch(inputFormat, async (newFormat, oldFormat) => {
                     v-model="isMinified"
                   />
                 </UFormField>
+
+                <UFormField
+                  v-if="inputFormat === 'json' || outputFormat === 'json'"
+                  :label="$t('Sort keys')"
+                  orientation="horizontal"
+                  :disabled="!finalOutput && !output"
+                >
+                  <USwitch v-model="sortKeys" />
+                </UFormField>
               </div>
             </div>
             <div class="flex-1 flex flex-col min-h-0">
@@ -341,38 +420,60 @@ watch(inputFormat, async (newFormat, oldFormat) => {
                 />
               </div>
               <template v-else>
-                <JsonFormatter
-                  v-if="outputFormat === 'json' && currentType === 'json'"
-                  :input="input"
-                  :sort-keys="sortKeys"
-                  @update:output="handleOutputUpdate"
-                  @update:error="handleErrorUpdate"
-                />
-                <XmlFormatter
-                  v-else-if="outputFormat === 'xml' && currentType === 'xml'"
-                  :input="input"
-                  @update:output="handleOutputUpdate"
-                  @update:error="handleErrorUpdate"
-                />
-                <XmlFormatter
-                  v-else-if="outputFormat === 'xml' && currentType === 'json' && finalOutput"
-                  :input="finalOutput"
-                  @update:output="() => {}"
-                  @update:error="() => {}"
-                />
-                <JsonFormatter
-                  v-else-if="outputFormat === 'json' && currentType === 'xml' && finalOutput"
-                  :input="finalOutput"
-                  :sort-keys="sortKeys"
-                  @update:output="() => {}"
-                  @update:error="() => {}"
-                />
+                <template v-if="outputFormat === currentType">
+                  <JsonFormatter
+                    v-if="outputFormat === 'json'"
+                    :input="input"
+                    :sort-keys="sortKeys"
+                    @update:output="handleOutputUpdate"
+                    @update:error="handleErrorUpdate"
+                  />
+                  <XmlFormatter
+                    v-else-if="outputFormat === 'xml'"
+                    :input="input"
+                    @update:output="handleOutputUpdate"
+                    @update:error="handleErrorUpdate"
+                  />
+                  <UTextarea
+                    v-else
+                    :model-value="input"
+                    readonly
+                    class="font-mono text-sm flex-1 "
+                    :ui="{
+                      base: 'block w-full h-full resize-none bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 ring-1 focus-visible:ring-1'
+                    }"
+                  />
+                </template>
+                <template v-else-if="finalOutput">
+                  <JsonFormatter
+                    v-if="outputFormat === 'json'"
+                    :input="finalOutput"
+                    :sort-keys="sortKeys"
+                    @update:output="() => {}"
+                    @update:error="() => {}"
+                  />
+                  <XmlFormatter
+                    v-else-if="outputFormat === 'xml'"
+                    :input="finalOutput"
+                    @update:output="() => {}"
+                    @update:error="() => {}"
+                  />
+                  <UTextarea
+                    v-else
+                    :model-value="finalOutput"
+                    readonly
+                    class="font-mono text-sm flex-1"
+                    :ui="{
+                      base: 'block w-full h-full resize-none bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 ring-1 focus-visible:ring-1'
+                    }"
+                  />
+                </template>
                 <div
                   v-else
                   class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800 items-center justify-center"
                 >
                   <p class="text-muted text-sm">
-                    {{ $t('Paste your JSON or XML here to get started') }}
+                    {{ $t('Paste your content here to get started') }}
                   </p>
                 </div>
               </template>
