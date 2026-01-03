@@ -3,6 +3,7 @@ import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 import '~/assets/css/vue-json-pretty-enhanced.css'
 import { Formatter } from 'fracturedjsonjs'
+import CodeHighlight from './CodeHighlight.vue'
 
 interface Props {
   input: string
@@ -120,7 +121,7 @@ watch(() => props.useFractured, () => {
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+  <div class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
     <div
       v-if="!parsedJson && !error"
       class="text-muted text-sm flex items-center justify-center h-full"
@@ -141,17 +142,17 @@ watch(() => props.useFractured, () => {
         </p>
       </div>
     </div>
-    <div
+    <CodeHighlight
       v-if="sortedJson && !error && useFractured"
-      class="font-mono text-sm whitespace-pre overflow-auto h-full"
-    >
-      {{ fracturedOutput }}
-    </div>
+      :code="fracturedOutput"
+      language="json"
+    />
     <VueJsonPretty
       v-else-if="sortedJson && !error && !useFractured"
       :data="formattedData"
       :deep="10"
       :theme="jsonTheme"
+      class="p-4"
     />
   </div>
 </template>

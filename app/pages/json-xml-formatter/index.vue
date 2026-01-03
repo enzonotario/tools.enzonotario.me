@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import JsonFormatter from '~/components/json-xml-formatter/JsonFormatter.vue'
 import XmlFormatter from '~/components/json-xml-formatter/XmlFormatter.vue'
+import CodeHighlight from '~/components/json-xml-formatter/CodeHighlight.vue'
 import { toXML } from 'jstoxml'
 import xml2json from '@hendt/xml2json'
 import yaml from 'js-yaml'
@@ -418,15 +419,12 @@ onMounted(() => {
             <div class="flex-1 flex flex-col min-h-0">
               <div
                 v-if="isMinified"
-                class="flex-1 flex flex-col min-h-0"
+                class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
               >
-                <UTextarea
-                  :model-value="finalOutput"
-                  readonly
-                  class="font-mono text-sm flex-1"
-                  :ui="{
-                    base: 'block w-full h-full resize-none'
-                  }"
+                <CodeHighlight
+                  :code="finalOutput"
+                  :language="outputFormat"
+                  :word-wrap="true"
                 />
               </div>
               <template v-else>
@@ -445,15 +443,15 @@ onMounted(() => {
                     @update:output="handleOutputUpdate"
                     @update:error="handleErrorUpdate"
                   />
-                  <UTextarea
+                  <div
                     v-else
-                    :model-value="input"
-                    readonly
-                    class="font-mono text-sm flex-1 "
-                    :ui="{
-                      base: 'block w-full h-full resize-none bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 ring-1 focus-visible:ring-1'
-                    }"
-                  />
+                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                  >
+                    <CodeHighlight
+                      :code="input"
+                      :language="outputFormat"
+                    />
+                  </div>
                 </template>
                 <template v-else-if="finalOutput">
                   <JsonFormatter
@@ -470,15 +468,15 @@ onMounted(() => {
                     @update:output="() => {}"
                     @update:error="() => {}"
                   />
-                  <UTextarea
+                  <div
                     v-else
-                    :model-value="finalOutput"
-                    readonly
-                    class="font-mono text-sm flex-1"
-                    :ui="{
-                      base: 'block w-full h-full resize-none bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 ring-1 focus-visible:ring-1'
-                    }"
-                  />
+                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                  >
+                    <CodeHighlight
+                      :code="finalOutput"
+                      :language="outputFormat"
+                    />
+                  </div>
                 </template>
                 <div
                   v-else

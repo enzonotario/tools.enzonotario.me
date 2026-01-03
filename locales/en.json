@@ -112,5 +112,6 @@
   "Output format": "Output format",
   "Minified": "Minified",
   "Convert to JSON": "Convert to JSON",
-  "Convert to XML": "Convert to XML"
+  "Convert to XML": "Convert to XML",
+  "Fractured JSON": "Fractured JSON"
 }
