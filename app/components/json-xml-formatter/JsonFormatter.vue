@@ -2,13 +2,20 @@
 import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 import '~/assets/css/vue-json-pretty-enhanced.css'
+import { Formatter } from 'fracturedjsonjs'
 
 interface Props {
   input: string
   sortKeys: boolean
+  useFractured?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  useFractured: true
+})
+
+// Create formatter instance with default options
+const formatter = new Formatter()
 
 const emit = defineEmits<{
   'update:output': [value: string]
@@ -52,8 +59,14 @@ const updateOutputJson = () => {
     return
   }
   const jsonToFormat = props.sortKeys ? sortedJson.value : parsedJson.value
-  const formatted = JSON.stringify(jsonToFormat, null, 2)
-  emit('update:output', formatted)
+
+  if (props.useFractured) {
+    const formatted = formatter.Serialize(jsonToFormat)
+    emit('update:output', formatted)
+  } else {
+    const formatted = JSON.stringify(jsonToFormat, null, 2)
+    emit('update:output', formatted)
+  }
 }
 
 const sortObjectKeys = (obj: unknown): unknown => {
@@ -81,6 +94,13 @@ const formattedData = computed(() => {
   return sortedJson.value as string | number | boolean | unknown[] | Record<string, unknown> | null
 })
 
+const fracturedOutput = computed(() => {
+  if (!sortedJson.value || !props.useFractured) {
+    return ''
+  }
+  return formatter.Serialize(sortedJson.value)
+})
+
 // Auto-parse on input change with debounce
 let parseTimeout: ReturnType<typeof setTimeout>
 watch(() => props.input, () => {
@@ -91,6 +111,10 @@ watch(() => props.input, () => {
 }, { immediate: true })
 
 watch(() => props.sortKeys, () => {
+  updateOutputJson()
+})
+
+watch(() => props.useFractured, () => {
   updateOutputJson()
 })
 </script>
@@ -117,8 +141,14 @@ watch(() => props.sortKeys, () => {
         </p>
       </div>
     </div>
+    <div
+      v-if="sortedJson && !error && useFractured"
+      class="font-mono text-sm whitespace-pre overflow-auto h-full"
+    >
+      {{ fracturedOutput }}
+    </div>
     <VueJsonPretty
-      v-if="sortedJson && !error"
+      v-else-if="sortedJson && !error && !useFractured"
       :data="formattedData"
       :deep="10"
       :theme="jsonTheme"

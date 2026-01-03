@@ -25,6 +25,7 @@ const isMinified = ref(false)
 const inputFormat = ref<InputFormatType>('auto-detect')
 const isManualSelection = ref(false)
 const detectedFormat = ref<FormatType>('json')
+const useFracturedJson = ref(true)
 
 // Function to detect format from content
 const detectFormat = (content: string): FormatType => {
@@ -403,6 +404,15 @@ onMounted(() => {
                 >
                   <USwitch v-model="sortKeys" />
                 </UFormField>
+
+                <UFormField
+                  v-if="(inputFormat === 'json' || outputFormat === 'json') && !isMinified"
+                  :label="$t('Fractured JSON')"
+                  orientation="horizontal"
+                  :disabled="!finalOutput && !output"
+                >
+                  <USwitch v-model="useFracturedJson" />
+                </UFormField>
               </div>
             </div>
             <div class="flex-1 flex flex-col min-h-0">
@@ -425,6 +435,7 @@ onMounted(() => {
                     v-if="outputFormat === 'json'"
                     :input="input"
                     :sort-keys="sortKeys"
+                    :use-fractured="useFracturedJson"
                     @update:output="handleOutputUpdate"
                     @update:error="handleErrorUpdate"
                   />
@@ -449,6 +460,7 @@ onMounted(() => {
                     v-if="outputFormat === 'json'"
                     :input="finalOutput"
                     :sort-keys="sortKeys"
+                    :use-fractured="useFracturedJson"
                     @update:output="() => {}"
                     @update:error="() => {}"
                   />
