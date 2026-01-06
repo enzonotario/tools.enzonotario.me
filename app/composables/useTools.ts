@@ -40,12 +40,12 @@ export const useTools = () => {
 
   const tools = computed<Tool[]>(() => [
     {
-      id: 'json-xml-formatter',
-      label: t('JSON / XML Formatter'),
-      description: t('Format, validate and minify your JSON and XML code'),
+      id: 'formatter',
+      label: t('Formatter'),
+      description: t('Format, validate and minify your JSON, XML, YAML and TOML code'),
       icon: 'i-lucide-braces',
       category: 'development',
-      to: '/json-xml-formatter'
+      to: '/json-xml-yaml-toml-format'
     },
     {
       id: 'text-diff',

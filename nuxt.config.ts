@@ -14,7 +14,9 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    '/json-xml-formatter': { redirect: '/json-xml-yaml-toml-format' },
+    '/es/json-xml-formatter': { redirect: '/es/json-xml-yaml-toml-format' }
   },
 
   compatibilityDate: '2025-01-15',

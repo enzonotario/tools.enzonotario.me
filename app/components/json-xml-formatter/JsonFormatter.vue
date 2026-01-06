@@ -64,8 +64,7 @@ const updateOutputJson = () => {
   if (props.useFractured) {
     const formatted = formatter.Serialize(jsonToFormat) ?? ''
     emit('update:output', formatted)
-  }
-  else {
+  } else {
     const formatted = JSON.stringify(jsonToFormat, null, 2)
     emit('update:output', formatted)
   }

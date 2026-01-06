@@ -301,6 +301,7 @@ onMounted(() => {
           <div class="flex flex-col h-full p-1 space-y-2">
             <div class="shrink-0">
               <div class="flex items-center gap-2">
+                <span class="text-sm text-muted">{{ $t('Input format') }}:</span>
                 <USelectMenu
                   v-model="inputFormat"
                   :items="[
@@ -313,14 +314,7 @@ onMounted(() => {
                   value-key="value"
                   label-key="label"
                   size="sm"
-                >
-                  <template #label>
-                    <span class="text-sm">
-                      {{ $t('Input format') }}:
-                      {{ inputFormat === 'auto-detect' ? $t('Auto-detect') + ' (' + currentType.toUpperCase() + ')' : inputFormat.toUpperCase() }}
-                    </span>
-                  </template>
-                </USelectMenu>
+                />
 
                 <UButton
                   variant="outline"
@@ -376,6 +370,7 @@ onMounted(() => {
                   {{ $t('Copy') }}
                 </UButton>
 
+                <span class="text-sm text-muted">{{ $t('Output format') }}:</span>
                 <USelectMenu
                   v-model="outputFormat"
                   :items="[
@@ -388,11 +383,7 @@ onMounted(() => {
                   label-key="label"
                   size="sm"
                   :disabled="!currentType"
-                >
-                  <template #label>
-                    <span class="text-sm">{{ $t('Output format') }}: {{ outputFormat.toUpperCase() }}</span>
-                  </template>
-                </USelectMenu>
+                />
                 <UFormField
                   :label="$t('Minified')"
                   orientation="horizontal"

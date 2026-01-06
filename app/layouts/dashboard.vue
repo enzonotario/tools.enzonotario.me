@@ -5,6 +5,7 @@ const { t, locale, locales } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
 const localePath = useLocalePath()
 const { tools, categories } = useTools()
+const route = useRoute()
 
 const navigationItems = computed<NavigationMenuItem[][]>(() => {
   const items: NavigationMenuItem[] = []
@@ -21,7 +22,7 @@ const navigationItems = computed<NavigationMenuItem[][]>(() => {
           label: tool.label,
           icon: tool.icon,
           to: tool.to,
-          active: false
+          active: route.path === tool.to || route.path === localePath(tool.to)
         }))
       })
     }
