@@ -38,7 +38,9 @@ const detectFormat = (content: string): FormatType => {
   try {
     JSON.parse(trimmed)
     return 'json'
-  } catch {}
+  } catch {
+    // Not JSON, continue detection
+  }
 
   // Try XML
   if (trimmed.startsWith('<') && trimmed.includes('>')) {
@@ -50,14 +52,18 @@ const detectFormat = (content: string): FormatType => {
     try {
       TOML.parse(trimmed)
       return 'toml'
-    } catch {}
+    } catch {
+      // Not TOML, continue detection
+    }
   }
 
   // Try YAML
   try {
     yaml.load(trimmed)
     return 'yaml'
-  } catch {}
+  } catch {
+    // Not YAML, continue detection
+  }
 
   return 'json'
 }
@@ -89,7 +95,7 @@ watch(currentType, (newType) => {
   }
 }, { immediate: true })
 
-const convertToJson = async (content: string, fromFormat: FormatType): Promise<any> => {
+const convertToJson = async (content: string, fromFormat: FormatType): Promise<unknown> => {
   switch (fromFormat) {
     case 'json':
       return JSON.parse(content)
@@ -102,7 +108,7 @@ const convertToJson = async (content: string, fromFormat: FormatType): Promise<a
   }
 }
 
-const convertFromJson = (jsonObj: any, toFormat: FormatType): string => {
+const convertFromJson = (jsonObj: unknown, toFormat: FormatType): string => {
   switch (toFormat) {
     case 'json':
       return JSON.stringify(jsonObj, null, 2)

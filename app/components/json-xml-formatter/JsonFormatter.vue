@@ -62,9 +62,10 @@ const updateOutputJson = () => {
   const jsonToFormat = props.sortKeys ? sortedJson.value : parsedJson.value
 
   if (props.useFractured) {
-    const formatted = formatter.Serialize(jsonToFormat)
+    const formatted = formatter.Serialize(jsonToFormat) ?? ''
     emit('update:output', formatted)
-  } else {
+  }
+  else {
     const formatted = JSON.stringify(jsonToFormat, null, 2)
     emit('update:output', formatted)
   }
@@ -95,11 +96,11 @@ const formattedData = computed(() => {
   return sortedJson.value as string | number | boolean | unknown[] | Record<string, unknown> | null
 })
 
-const fracturedOutput = computed(() => {
+const fracturedOutput = computed((): string => {
   if (!sortedJson.value || !props.useFractured) {
     return ''
   }
-  return formatter.Serialize(sortedJson.value)
+  return formatter.Serialize(sortedJson.value) ?? ''
 })
 
 // Auto-parse on input change with debounce

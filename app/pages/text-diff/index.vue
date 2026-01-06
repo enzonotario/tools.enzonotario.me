@@ -6,7 +6,6 @@ type FormatType = 'text' | 'json' | 'xml' | 'yaml' | 'toml' | 'javascript' | 'ty
 type InputFormatType = FormatType | 'auto-detect'
 
 const { t } = useI18n()
-const toast = useToast()
 const colorMode = useColorMode()
 
 definePageMeta({
@@ -29,7 +28,9 @@ const detectFormat = (content: string): FormatType => {
   try {
     JSON.parse(trimmed)
     return 'json'
-  } catch {}
+  } catch {
+    // Not JSON, continue detection
+  }
 
   // Try XML/HTML
   if (trimmed.startsWith('<') && trimmed.includes('>')) {
@@ -48,7 +49,7 @@ const detectFormat = (content: string): FormatType => {
   }
 
   // Try CSS
-  if (trimmed.match(/^[.#]?[\w-]+\s*\{/) || trimmed.includes('{') && trimmed.includes('}') && trimmed.includes(':')) {
+  if (trimmed.match(/^[.#]?[\w-]+\s*\{/) || (trimmed.includes('{') && trimmed.includes('}') && trimmed.includes(':'))) {
     return 'css'
   }
 
@@ -141,46 +142,41 @@ const currentTheme = computed(() => {
   <div class="w-full h-full flex flex-col">
     <div class="shrink-0">
       <div class="flex items-center gap-3 flex-wrap">
-        <USelectMenu
-          v-model="inputFormat"
-          :items="[
-            { label: $t('Auto-detect'), value: 'auto-detect' },
-            { label: 'Text', value: 'text' },
-            { label: 'JSON', value: 'json' },
-            { label: 'XML', value: 'xml' },
-            { label: 'HTML', value: 'html' },
-            { label: 'CSS', value: 'css' },
-            { label: 'YAML', value: 'yaml' },
-            { label: 'TOML', value: 'toml' },
-            { label: 'JavaScript', value: 'javascript' },
-            { label: 'TypeScript', value: 'typescript' }
-          ]"
-          value-key="value"
-          label-key="label"
-          size="sm"
-        >
-          <template #label>
-            <span class="text-sm">
-              {{ $t('Format') }}:
-              {{ inputFormat === 'auto-detect' ? $t('Auto-detect') + ' (' + currentFormat.toUpperCase() + ')' : inputFormat.toUpperCase() }}
-            </span>
-          </template>
-        </USelectMenu>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-muted">{{ $t('Format') }}:</span>
+          <USelectMenu
+            v-model="inputFormat"
+            :items="[
+              { label: $t('Auto-detect'), value: 'auto-detect' },
+              { label: 'Text', value: 'text' },
+              { label: 'JSON', value: 'json' },
+              { label: 'XML', value: 'xml' },
+              { label: 'HTML', value: 'html' },
+              { label: 'CSS', value: 'css' },
+              { label: 'YAML', value: 'yaml' },
+              { label: 'TOML', value: 'toml' },
+              { label: 'JavaScript', value: 'javascript' },
+              { label: 'TypeScript', value: 'typescript' }
+            ]"
+            value-key="value"
+            label-key="label"
+            size="sm"
+          />
+        </div>
 
-        <USelectMenu
-          v-model="diffMode"
-          :items="[
-            { label: $t('Split View'), value: 'split' },
-            { label: $t('Unified View'), value: 'unified' }
-          ]"
-          value-key="value"
-          label-key="label"
-          size="sm"
-        >
-          <template #label>
-            <span class="text-sm">{{ $t('View') }}: {{ diffMode === 'split' ? $t('Split') : $t('Unified') }}</span>
-          </template>
-        </USelectMenu>
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-muted">{{ $t('View') }}:</span>
+          <USelectMenu
+            v-model="diffMode"
+            :items="[
+              { label: $t('Split View'), value: 'split' },
+              { label: $t('Unified View'), value: 'unified' }
+            ]"
+            value-key="value"
+            label-key="label"
+            size="sm"
+          />
+        </div>
 
         <UButton
           variant="outline"
