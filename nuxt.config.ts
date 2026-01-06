@@ -19,6 +19,12 @@ export default defineNuxtConfig({
 
   compatibilityDate: '2025-01-15',
 
+  vite: {
+    ssr: {
+      noExternal: ['xml-js']
+    }
+  },
+
   eslint: {
     config: {
       stylistic: {
@@ -52,12 +58,6 @@ export default defineNuxtConfig({
       cookieKey: 'i18n_redirected',
       redirectOn: 'root',
       alwaysRedirect: false
-    }
-  },
-
-  vite: {
-    ssr: {
-      noExternal: ['xml-js']
     }
   }
 })

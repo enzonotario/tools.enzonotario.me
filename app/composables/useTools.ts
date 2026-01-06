@@ -48,6 +48,14 @@ export const useTools = () => {
       to: '/json-xml-formatter'
     },
     {
+      id: 'text-diff',
+      label: t('Text Diff Comparison'),
+      description: t('Compare and visualize differences between text, JSON, XML, and other formats'),
+      icon: 'i-lucide-git-compare',
+      category: 'development',
+      to: '/text-diff'
+    },
+    {
       id: 'og-debugger',
       label: t('OG Debugger'),
       description: t('Debug and preview Open Graph tags for social media sharing'),
