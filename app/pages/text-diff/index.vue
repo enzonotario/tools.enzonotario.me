@@ -140,8 +140,8 @@ const currentTheme = computed(() => {
 
 <template>
   <div class="w-full h-full flex flex-col">
-    <div class="shrink-0">
-      <div class="flex items-center gap-3 flex-wrap">
+    <Teleport to="#header-actions-portal">
+      <div class="flex items-center gap-2">
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted">{{ $t('Format') }}:</span>
           <USelectMenu
@@ -198,107 +198,109 @@ const currentTheme = computed(() => {
           {{ $t('Clear') }}
         </UButton>
       </div>
+    </Teleport>
+
+    <div class="w-full h-full flex flex-col">
+      <ClientOnly>
+        <SplitPane
+          split="horizontal"
+          :min-percent="20"
+          :default-percent="35"
+          storage-key="text-diff-horizontal"
+          class="flex-1 min-h-0"
+        >
+          <template #paneL>
+            <SplitPane
+              split="vertical"
+              :min-percent="20"
+              :default-percent="50"
+              storage-key="text-diff-vertical"
+              class="h-full"
+            >
+              <template #paneL>
+                <div class="flex flex-col h-full p-1">
+                  <div>
+                    <h3 class="text-sm font-semibold text-highlighted">
+                      {{ $t('Original') }}
+                    </h3>
+                  </div>
+                  <div class="flex-1 flex flex-col min-h-0">
+                    <UTextarea
+                      v-model="leftInput"
+                      :placeholder="placeholder"
+                      class="font-mono text-sm flex-1"
+                      :ui="{
+                        base: 'block w-full h-full resize-none'
+                      }"
+                      autofocus
+                    />
+                  </div>
+                </div>
+              </template>
+
+              <template #paneR>
+                <div class="flex flex-col h-full p-1">
+                  <div>
+                    <h3 class="text-sm font-semibold text-highlighted">
+                      {{ $t('Modified') }}
+                    </h3>
+                  </div>
+                  <div class="flex-1 flex flex-col min-h-0">
+                    <UTextarea
+                      v-model="rightInput"
+                      :placeholder="placeholder"
+                      class="font-mono text-sm flex-1"
+                      :ui="{
+                        base: 'block w-full h-full resize-none'
+                      }"
+                    />
+                  </div>
+                </div>
+              </template>
+            </SplitPane>
+          </template>
+
+          <template #paneR>
+            <div class="flex flex-col h-full p-1">
+              <div class="shrink-0">
+                <h3 class="text-sm font-semibold text-highlighted">
+                  {{ $t('Differences') }}
+                </h3>
+              </div>
+              <div class="flex-1 min-h-0 overflow-auto">
+                <template v-if="leftInput || rightInput">
+                  <CodeDiff
+                    :old-string="leftInput"
+                    :new-string="rightInput"
+                    :output-format="outputFormat"
+                    :language="diffLanguage"
+                    :theme="currentTheme"
+                    :context="10"
+                    class="!my-0"
+                  />
+                </template>
+                <template v-else>
+                  <div class="flex items-center justify-center h-full">
+                    <p class="text-muted text-sm">
+                      {{ $t('Enter text in both panels to see differences') }}
+                    </p>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+        </SplitPane>
+
+        <template #fallback>
+          <div class="flex-1 flex items-center justify-center">
+            <div class="text-center py-12">
+              <p class="text-muted text-sm">
+                {{ $t('Loading...') }}
+              </p>
+            </div>
+          </div>
+        </template>
+      </ClientOnly>
     </div>
-
-    <ClientOnly>
-      <SplitPane
-        split="horizontal"
-        :min-percent="20"
-        :default-percent="35"
-        storage-key="text-diff-horizontal"
-        class="flex-1 min-h-0"
-      >
-        <template #paneL>
-          <SplitPane
-            split="vertical"
-            :min-percent="20"
-            :default-percent="50"
-            storage-key="text-diff-vertical"
-            class="h-full"
-          >
-            <template #paneL>
-              <div class="flex flex-col h-full p-1">
-                <div>
-                  <h3 class="text-sm font-semibold text-highlighted">
-                    {{ $t('Original') }}
-                  </h3>
-                </div>
-                <div class="flex-1 flex flex-col min-h-0">
-                  <UTextarea
-                    v-model="leftInput"
-                    :placeholder="placeholder"
-                    class="font-mono text-sm flex-1"
-                    :ui="{
-                      base: 'block w-full h-full resize-none'
-                    }"
-                    autofocus
-                  />
-                </div>
-              </div>
-            </template>
-
-            <template #paneR>
-              <div class="flex flex-col h-full p-1">
-                <div>
-                  <h3 class="text-sm font-semibold text-highlighted">
-                    {{ $t('Modified') }}
-                  </h3>
-                </div>
-                <div class="flex-1 flex flex-col min-h-0">
-                  <UTextarea
-                    v-model="rightInput"
-                    :placeholder="placeholder"
-                    class="font-mono text-sm flex-1"
-                    :ui="{
-                      base: 'block w-full h-full resize-none'
-                    }"
-                  />
-                </div>
-              </div>
-            </template>
-          </SplitPane>
-        </template>
-
-        <template #paneR>
-          <div class="flex flex-col h-full">
-            <div class="shrink-0">
-              <h3 class="text-sm font-semibold text-highlighted">
-                {{ $t('Differences') }}
-              </h3>
-            </div>
-            <div class="flex-1 min-h-0 overflow-auto">
-              <template v-if="leftInput || rightInput">
-                <CodeDiff
-                  :old-string="leftInput"
-                  :new-string="rightInput"
-                  :output-format="outputFormat"
-                  :language="diffLanguage"
-                  :theme="currentTheme"
-                  :context="10"
-                  class="!my-0"
-                />
-              </template>
-              <template v-else>
-                <div class="flex items-center justify-center h-full">
-                  <p class="text-muted text-sm">
-                    {{ $t('Enter text in both panels to see differences') }}
-                  </p>
-                </div>
-              </template>
-            </div>
-          </div>
-        </template>
-      </SplitPane>
-
-      <template #fallback>
-        <div class="flex-1 flex items-center justify-center">
-          <div class="text-center py-12">
-            <p class="text-muted text-sm">
-              {{ $t('Loading...') }}
-            </p>
-          </div>
-        </div>
-      </template>
-    </ClientOnly>
   </div>
 </template>
