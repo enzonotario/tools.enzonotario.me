@@ -34,13 +34,13 @@ const navigationItems = computed<NavigationMenuItem[][]>(() => {
 const searchGroups = computed(() => {
   return [{
     id: 'tools',
-    key: 'tools',
     label: t('Tools'),
-    commands: tools.value.map(tool => ({
+    items: tools.value.map(tool => ({
       id: tool.id,
       label: tool.label,
       icon: tool.icon,
-      to: tool.to
+      suffix: tool.description,
+      to: localePath(tool.to)
     }))
   }]
 })
@@ -93,30 +93,7 @@ const searchGroups = computed(() => {
       </template>
 
       <template #default="{ collapsed }">
-        <UButton
-          :label="collapsed ? undefined : $t('Search tool...')"
-          icon="i-lucide-search"
-          color="neutral"
-          variant="outline"
-          block
-          :square="collapsed"
-        >
-          <template
-            v-if="!collapsed"
-            #trailing
-          >
-            <div class="flex items-center gap-0.5 ms-auto">
-              <UKbd
-                value="meta"
-                variant="subtle"
-              />
-              <UKbd
-                value="K"
-                variant="subtle"
-              />
-            </div>
-          </template>
-        </UButton>
+        <UDashboardSearchButton />
 
         <UNavigationMenu
           :collapsed="collapsed"
