@@ -40,6 +40,11 @@
   },
   "packageManager": "pnpm@10.26.1",
   "pnpm": {
-    "onlyBuiltDependencies": ["v-code-diff"]
+    "onlyBuiltDependencies": [
+      "v-code-diff"
+    ]
+  },
+  "volta": {
+    "node": "22.22.0"
   }
 }

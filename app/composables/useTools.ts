@@ -64,6 +64,14 @@ export const useTools = () => {
       to: '/og-debugger'
     },
     {
+      id: 'string-escape',
+      label: t('String Escape'),
+      description: t('Escape and unescape strings: JSON, HTML, URL, Base64, Unicode'),
+      icon: 'i-lucide-quote',
+      category: 'development',
+      to: '/string-escape'
+    },
+    {
       id: 'lorem-ipsum',
       label: t('Lorem Ipsum Generator'),
       description: t('Generate placeholder text for your designs'),
