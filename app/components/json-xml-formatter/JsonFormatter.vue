@@ -3,6 +3,7 @@ import VueJsonPretty from 'vue-json-pretty'
 import 'vue-json-pretty/lib/styles.css'
 import '~/assets/css/vue-json-pretty-enhanced.css'
 import { Formatter } from 'fracturedjsonjs'
+import { parseJSON } from 'graceful-json'
 import CodeHighlight from './CodeHighlight.vue'
 
 interface Props {
@@ -15,7 +16,6 @@ const props = withDefaults(defineProps<Props>(), {
   useFractured: true
 })
 
-// Create formatter instance with default options
 const formatter = new Formatter()
 
 const emit = defineEmits<{
@@ -25,7 +25,7 @@ const emit = defineEmits<{
 
 const colorMode = useColorMode()
 
-const parsedJson = ref<unknown>(null)
+const parsedJsonList = ref<unknown[]>([])
 const error = ref<string | null>(null)
 
 const jsonTheme = computed(() => {
@@ -36,38 +36,44 @@ const parseJson = () => {
   error.value = null
   if (!props.input.trim()) {
     emit('update:output', '')
-    parsedJson.value = null
+    parsedJsonList.value = []
     emit('update:error', null)
     return
   }
 
   try {
-    const parsed = JSON.parse(props.input)
-    parsedJson.value = parsed
+    const results = parseJSON(props.input)
+    if (results.length === 0) {
+      error.value = 'No valid JSON found'
+      emit('update:output', '')
+      parsedJsonList.value = []
+      emit('update:error', error.value)
+      return
+    }
+    parsedJsonList.value = results
     updateOutputJson()
     emit('update:error', null)
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Invalid JSON'
     emit('update:output', '')
-    parsedJson.value = null
+    parsedJsonList.value = []
     emit('update:error', error.value)
   }
 }
 
 const updateOutputJson = () => {
-  if (!parsedJson.value) {
+  if (parsedJsonList.value.length === 0) {
     emit('update:output', '')
     return
   }
-  const jsonToFormat = props.sortKeys ? sortedJson.value : parsedJson.value
-
-  if (props.useFractured) {
-    const formatted = formatter.Serialize(jsonToFormat) ?? ''
-    emit('update:output', formatted)
-  } else {
-    const formatted = JSON.stringify(jsonToFormat, null, 2)
-    emit('update:output', formatted)
-  }
+  const outputs = sortedJsonList.value.map((json) => {
+    if (props.useFractured) {
+      return formatter.Serialize(json) ?? ''
+    } else {
+      return JSON.stringify(json, null, 2)
+    }
+  })
+  emit('update:output', outputs.join('\n\n'))
 }
 
 const sortObjectKeys = (obj: unknown): unknown => {
@@ -84,25 +90,24 @@ const sortObjectKeys = (obj: unknown): unknown => {
   return obj
 }
 
-const sortedJson = computed(() => {
-  if (!parsedJson.value || !props.sortKeys) {
-    return parsedJson.value
+const sortedJsonList = computed(() => {
+  if (!props.sortKeys) {
+    return parsedJsonList.value
   }
-  return sortObjectKeys(parsedJson.value)
+  return parsedJsonList.value.map(sortObjectKeys)
 })
 
-const formattedData = computed(() => {
-  return sortedJson.value as string | number | boolean | unknown[] | Record<string, unknown> | null
+const formattedDataList = computed(() => {
+  return sortedJsonList.value as (string | number | boolean | unknown[] | Record<string, unknown> | null)[]
 })
 
-const fracturedOutput = computed((): string => {
-  if (!sortedJson.value || !props.useFractured) {
-    return ''
+const fracturedOutputList = computed((): string[] => {
+  if (!props.useFractured) {
+    return []
   }
-  return formatter.Serialize(sortedJson.value) ?? ''
+  return sortedJsonList.value.map(json => formatter.Serialize(json) ?? '')
 })
 
-// Auto-parse on input change with debounce
 let parseTimeout: ReturnType<typeof setTimeout>
 watch(() => props.input, () => {
   clearTimeout(parseTimeout)
@@ -123,7 +128,7 @@ watch(() => props.useFractured, () => {
 <template>
   <div class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
     <div
-      v-if="!parsedJson && !error"
+      v-if="parsedJsonList.length === 0 && !error"
       class="text-muted text-sm flex items-center justify-center h-full"
     >
       {{ $t('Formatted JSON will appear here...') }}
@@ -142,17 +147,31 @@ watch(() => props.useFractured, () => {
         </p>
       </div>
     </div>
-    <CodeHighlight
-      v-if="sortedJson && !error && useFractured"
-      :code="fracturedOutput"
-      language="json"
-    />
-    <VueJsonPretty
-      v-else-if="sortedJson && !error && !useFractured"
-      :data="formattedData"
-      :deep="10"
-      :theme="jsonTheme"
-      class="p-4"
-    />
+    <template v-if="sortedJsonList.length > 0 && !error">
+      <div
+        v-for="(json, index) in sortedJsonList"
+        :key="index"
+        :class="{ 'border-t border-gray-200 dark:border-gray-700': index > 0 }"
+      >
+        <div
+          v-if="sortedJsonList.length > 1"
+          class="px-3 py-1 bg-gray-100 dark:bg-gray-800 text-xs text-muted"
+        >
+          JSON {{ index + 1 }}
+        </div>
+        <CodeHighlight
+          v-if="useFractured"
+          :code="fracturedOutputList[index] ?? ''"
+          language="json"
+        />
+        <VueJsonPretty
+          v-else
+          :data="formattedDataList[index]"
+          :deep="10"
+          :theme="jsonTheme"
+          class="p-4"
+        />
+      </div>
+    </template>
   </div>
 </template>

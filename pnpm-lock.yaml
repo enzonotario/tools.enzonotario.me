@@ -32,6 +32,9 @@ importers:
       fracturedjsonjs:
         specifier: ^5.0.1
         version: 5.0.1
+      graceful-json:
+        specifier: ^0.1.0
+        version: 0.1.0(typescript@5.9.3)
       js-yaml:
         specifier: ^4.1.1
         version: 4.1.1
@@ -3474,6 +3477,12 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  graceful-json@0.1.0:
+    resolution: {integrity: sha512-piqVal5bRA4jYTkRa4qbledQm88B/mSSvPDhvtUXEiHv+AYWf4urwR8NuuJboVCZ7aDJrN6PL4kj2nMz+rkAaA==}
+    engines: {bun: '>=1.0', node: '>=18'}
+    peerDependencies:
+      typescript: ^5.0.0
 
   gzip-size@7.0.0:
     resolution: {integrity: sha512-O1Ld7Dr+nqPnmGpdhzLmMTQ4vAsD+rHwMm1NLUmoUFFymBOMKxCCrtDxqdBRYXdeEPEi3SyoR4TizJLQrnKBNA==}
@@ -9224,6 +9233,10 @@ snapshots:
       unicorn-magic: 0.3.0
 
   graceful-fs@4.2.11: {}
+
+  graceful-json@0.1.0(typescript@5.9.3):
+    dependencies:
+      typescript: 5.9.3
 
   gzip-size@7.0.0:
     dependencies:

@@ -2,10 +2,12 @@
 import JsonFormatter from '~/components/json-xml-formatter/JsonFormatter.vue'
 import XmlFormatter from '~/components/json-xml-formatter/XmlFormatter.vue'
 import CodeHighlight from '~/components/json-xml-formatter/CodeHighlight.vue'
+import MultiFormatOutput from '~/components/json-xml-formatter/MultiFormatOutput.vue'
 import { toXML } from 'jstoxml'
 import xml2json from '@hendt/xml2json'
 import yaml from 'js-yaml'
 import * as TOML from 'smol-toml'
+import { parseJSON } from 'graceful-json'
 
 type FormatType = 'json' | 'xml' | 'yaml' | 'toml'
 type InputFormatType = FormatType | 'auto-detect'
@@ -27,42 +29,41 @@ const inputFormat = ref<InputFormatType>('auto-detect')
 const isManualSelection = ref(false)
 const detectedFormat = ref<FormatType>('json')
 const useFracturedJson = ref(true)
+const parsedJsonObjects = ref<unknown[]>([])
 
-// Function to detect format from content
 const detectFormat = (content: string): FormatType => {
-  if (!content.trim()) return 'json'
+  if (!content.trim()) {
+    parsedJsonObjects.value = []
+    return 'json'
+  }
 
   const trimmed = content.trim()
 
-  // Try JSON
-  try {
-    JSON.parse(trimmed)
-    return 'json'
-  } catch {
-    // Not JSON, continue detection
-  }
-
-  // Try XML
   if (trimmed.startsWith('<') && trimmed.includes('>')) {
+    parsedJsonObjects.value = []
     return 'xml'
   }
 
-  // Try TOML
+  const jsonResults = parseJSON(trimmed)
+  if (jsonResults.length > 0) {
+    parsedJsonObjects.value = jsonResults
+    return 'json'
+  }
+
+  parsedJsonObjects.value = []
+
   if (trimmed.match(/^\[.+\]$|^[\w-]+\s*=\s*.+/m)) {
     try {
       TOML.parse(trimmed)
       return 'toml'
     } catch {
-      // Not TOML, continue detection
     }
   }
 
-  // Try YAML
   try {
     yaml.load(trimmed)
     return 'yaml'
   } catch {
-    // Not YAML, continue detection
   }
 
   return 'json'
@@ -155,20 +156,36 @@ const minifyContent = (content: string, format: FormatType): string | null => {
   }
 }
 
-// Store converted output
 const convertedOutput = ref<string>('')
+const convertedOutputList = ref<string[]>([])
 
 watch([outputFormat, input, currentType], async () => {
   if (!input.value.trim()) {
     convertedOutput.value = ''
+    convertedOutputList.value = []
     return
   }
 
   if (outputFormat.value !== currentType.value) {
-    const converted = await convertFormat(input.value, currentType.value, outputFormat.value)
-    convertedOutput.value = converted || ''
+    if (currentType.value === 'json' && parsedJsonObjects.value.length > 0) {
+      const results: string[] = []
+      for (const jsonObj of parsedJsonObjects.value) {
+        try {
+          const converted = convertFromJson(jsonObj, outputFormat.value)
+          results.push(converted)
+        } catch {
+        }
+      }
+      convertedOutputList.value = results
+      convertedOutput.value = results.join('\n\n')
+    } else {
+      const converted = await convertFormat(input.value, currentType.value, outputFormat.value)
+      convertedOutput.value = converted || ''
+      convertedOutputList.value = converted ? [converted] : []
+    }
   } else {
     convertedOutput.value = ''
+    convertedOutputList.value = []
   }
 }, { immediate: true })
 
@@ -450,7 +467,7 @@ onMounted(() => {
                     />
                   </div>
                 </template>
-                <template v-else-if="finalOutput">
+                <template v-else-if="convertedOutputList.length > 0">
                   <JsonFormatter
                     v-if="outputFormat === 'json'"
                     :input="finalOutput"
@@ -459,21 +476,12 @@ onMounted(() => {
                     @update:output="() => {}"
                     @update:error="() => {}"
                   />
-                  <XmlFormatter
-                    v-else-if="outputFormat === 'xml'"
-                    :input="finalOutput"
-                    @update:output="() => {}"
-                    @update:error="() => {}"
-                  />
-                  <div
+                  <MultiFormatOutput
                     v-else
-                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
-                  >
-                    <CodeHighlight
-                      :code="finalOutput"
-                      :language="outputFormat"
-                    />
-                  </div>
+                    :outputs="convertedOutputList"
+                    :format="outputFormat"
+                    :label="outputFormat.toUpperCase()"
+                  />
                 </template>
                 <div
                   v-else
