@@ -45,7 +45,7 @@ export const useTools = () => {
       description: t('Format, validate and minify your JSON, XML, YAML and TOML code'),
       icon: 'i-lucide-braces',
       category: 'development',
-      to: '/json-xml-yaml-toml-format'
+      to: '/formatter'
     },
     {
       id: 'text-diff',
