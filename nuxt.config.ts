@@ -13,6 +13,14 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  ui: {
+    theme: {
+      defaultVariants: {
+        color: 'neutral'
+      }
+    }
+  },
+
   routeRules: {
     '/': { prerender: true },
     '/json-xml-formatter': { redirect: '/formatter' },

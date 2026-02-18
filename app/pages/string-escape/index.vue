@@ -232,7 +232,6 @@ const swapTexts = () => {
         </div>
 
         <UButton
-          color="primary"
           size="sm"
           icon="i-lucide-arrow-right"
           @click="doEscape"
@@ -241,7 +240,6 @@ const swapTexts = () => {
         </UButton>
 
         <UButton
-          color="primary"
           variant="outline"
           size="sm"
           icon="i-lucide-arrow-left"
@@ -253,7 +251,6 @@ const swapTexts = () => {
         <UButton
           variant="outline"
           size="sm"
-          color="neutral"
           icon="i-lucide-arrow-left-right"
           @click="swapTexts"
         >
@@ -263,7 +260,6 @@ const swapTexts = () => {
         <UButton
           variant="outline"
           size="sm"
-          color="neutral"
           icon="i-lucide-x"
           @click="clearAll"
         >
@@ -272,7 +268,6 @@ const swapTexts = () => {
 
         <UButton
           size="sm"
-          color="primary"
           icon="i-lucide-copy"
           :disabled="!outputText"
           @click="copyToClipboard"

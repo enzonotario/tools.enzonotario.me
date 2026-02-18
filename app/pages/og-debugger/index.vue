@@ -108,7 +108,6 @@ const copyMetatag = async (tag: { name: string, value: string | undefined }) => 
         </div>
         <UButton
           size="lg"
-          color="primary"
           :loading="loading"
           :disabled="!validateUrl()"
           @click="handleValidate"
@@ -142,7 +141,6 @@ const copyMetatag = async (tag: { name: string, value: string | undefined }) => 
             { label: $t('Previews'), value: 'previews' },
             { label: $t('Metatags'), value: 'metatags' }
           ]"
-          color="neutral"
         />
 
         <div

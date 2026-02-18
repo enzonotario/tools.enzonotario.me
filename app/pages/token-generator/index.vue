@@ -140,7 +140,6 @@ onMounted(() => {
         <UButton
           block
           size="lg"
-          color="neutral"
           @click="tokenStore.generateToken"
         >
           {{ $t('Refresh') }}
@@ -169,7 +168,6 @@ onMounted(() => {
           <div class="flex justify-end">
             <UButton
               size="lg"
-              color="primary"
               icon="i-lucide-copy"
               :disabled="!tokenStore.generatedToken"
               @click="copyToClipboard"

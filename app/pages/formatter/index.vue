@@ -336,7 +336,6 @@ onMounted(() => {
                 <UButton
                   variant="outline"
                   size="sm"
-                  color="neutral"
                   icon="i-lucide-x"
                   @click="clearAll"
                 >
@@ -379,7 +378,6 @@ onMounted(() => {
               <div class="flex items-center gap-3 flex-wrap">
                 <UButton
                   size="sm"
-                  color="primary"
                   icon="i-lucide-copy"
                   :disabled="!finalOutput && !output"
                   @click="copyToClipboard"

@@ -181,7 +181,6 @@ const currentTheme = computed(() => {
         <UButton
           variant="outline"
           size="sm"
-          color="neutral"
           icon="i-lucide-arrow-left-right"
           @click="swapInputs"
         >
@@ -191,7 +190,6 @@ const currentTheme = computed(() => {
         <UButton
           variant="outline"
           size="sm"
-          color="neutral"
           icon="i-lucide-x"
           @click="clearAll"
         >

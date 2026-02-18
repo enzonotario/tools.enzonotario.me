@@ -39,7 +39,6 @@ const currencies = [
           </h3>
           <UButton
             icon="i-lucide-plus"
-            color="neutral"
             @click="invoiceStore.addItem()"
           >
             Agregar Item

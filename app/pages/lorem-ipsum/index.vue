@@ -112,7 +112,6 @@ onMounted(() => {
       <div class="flex items-center gap-2">
         <UButton
           size="sm"
-          color="primary"
           icon="i-lucide-copy"
           :disabled="!generatedText"
           @click="copyToClipboard"
@@ -122,7 +121,6 @@ onMounted(() => {
         <UButton
           variant="outline"
           size="sm"
-          color="neutral"
           icon="i-lucide-refresh-cw"
           @click="generateLoremIpsum"
         >
@@ -147,7 +145,6 @@ onMounted(() => {
                   :max="20"
                   :step="1"
                   class="w-full"
-                  color="primary"
                 />
               </div>
               <span class="text-sm font-medium min-w-12 text-right text-highlighted">{{ paragraphs }}</span>
@@ -167,7 +164,6 @@ onMounted(() => {
                   :max="20"
                   :step="1"
                   class="w-full"
-                  color="primary"
                 />
               </div>
               <span class="text-sm font-medium min-w-12 text-right text-highlighted">{{ sentencesPerParagraph }}</span>
@@ -187,7 +183,6 @@ onMounted(() => {
                   :max="30"
                   :step="1"
                   class="w-full"
-                  color="primary"
                 />
               </div>
               <span class="text-sm font-medium min-w-12 text-right text-highlighted">{{ wordsPerSentence }}</span>
@@ -202,7 +197,6 @@ onMounted(() => {
               <label class="text-sm font-medium text-highlighted">{{ $t('Start with lorem ipsum ?') }}</label>
               <USwitch
                 v-model="startWithLoremIpsum"
-                color="primary"
                 @click.stop
               />
             </div>
@@ -216,7 +210,6 @@ onMounted(() => {
               <label class="text-sm font-medium text-highlighted">{{ $t('As html?') }}</label>
               <USwitch
                 v-model="asHtml"
-                color="primary"
                 @click.stop
               />
             </div>

@@ -163,7 +163,6 @@ onMounted(() => {
         <UButton
           block
           size="lg"
-          color="neutral"
           @click="passwordStore.generatePassword"
         >
           {{ $t('Generate') }}
@@ -186,7 +185,6 @@ onMounted(() => {
             />
             <UButton
               size="lg"
-              color="primary"
               icon="i-lucide-copy"
               :disabled="!passwordStore.generatedPassword"
               @click="copyToClipboard"
@@ -198,7 +196,6 @@ onMounted(() => {
 
         <div class="flex justify-end">
           <UButton
-            color="neutral"
             leading-icon="i-lucide-refresh-cw"
             @click="passwordStore.generatePassword"
           >

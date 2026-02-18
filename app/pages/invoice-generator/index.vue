@@ -138,13 +138,11 @@ const handleImportJSON = () => {
           value-key="value"
           label-key="label"
           size="sm"
-          color="neutral"
           variant="outline"
         />
         <UButton
           variant="outline"
           size="sm"
-          color="neutral"
           icon="i-lucide-download"
           @click="invoiceStore.exportToJSON()"
         >
@@ -153,7 +151,6 @@ const handleImportJSON = () => {
         <UButton
           variant="outline"
           size="sm"
-          color="neutral"
           icon="i-lucide-upload"
           @click="handleImportJSON"
         >
@@ -186,7 +183,6 @@ const handleImportJSON = () => {
                 v-model="activeStep"
                 :items="steps"
                 orientation="horizontal"
-                color="neutral"
                 :linear="false"
                 class="mb-6"
               />
@@ -214,7 +210,6 @@ const handleImportJSON = () => {
                   <UButton
                     v-if="activeStep > 0"
                     variant="ghost"
-                    color="neutral"
                     leading-icon="i-lucide-arrow-left"
                     :ui="{
                       base: 'justify-center'
@@ -227,7 +222,6 @@ const handleImportJSON = () => {
 
                   <UButton
                     v-if="activeStep < 5"
-                    color="neutral"
                     trailing-icon="i-lucide-arrow-right"
                     :ui="{
                       base: 'justify-center'
@@ -238,7 +232,6 @@ const handleImportJSON = () => {
                   </UButton>
                   <UButton
                     v-else
-                    color="primary"
                     icon="i-lucide-file-text"
                     :ui="{
                       base: 'justify-center'
