@@ -57,6 +57,7 @@ const detectFormat = (content: string): FormatType => {
       TOML.parse(trimmed)
       return 'toml'
     } catch {
+      // ignore parse error, try next format
     }
   }
 
@@ -64,6 +65,7 @@ const detectFormat = (content: string): FormatType => {
     yaml.load(trimmed)
     return 'yaml'
   } catch {
+    // ignore parse error, fallback to json
   }
 
   return 'json'
@@ -174,6 +176,7 @@ watch([outputFormat, input, currentType], async () => {
           const converted = convertFromJson(jsonObj, outputFormat.value)
           results.push(converted)
         } catch {
+          // ignore conversion error for this item
         }
       }
       convertedOutputList.value = results
