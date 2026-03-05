@@ -27,6 +27,54 @@ const issueDate = computed({
   }
 })
 
+const hasDueDate = computed({
+  get: () => invoiceStore.invoiceData.terms?.dueDate != null,
+  set: (value: boolean) => {
+    if (value) {
+      const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+      invoiceStore.invoiceData.terms.dueDate = new CalendarDate(futureDate.getFullYear(), futureDate.getMonth() + 1, futureDate.getDate())
+    } else {
+      invoiceStore.invoiceData.terms.dueDate = null
+    }
+    invoiceStore.saveToLocalStorage()
+  }
+})
+
+const hasBillingPeriod = computed({
+  get: () => invoiceStore.invoiceData.terms?.billingPeriod != null,
+  set: (value: boolean) => {
+    if (value) {
+      const today = new Date()
+      const firstOfMonth = new CalendarDate(today.getFullYear(), today.getMonth() + 1, 1)
+      const lastOfMonth = new CalendarDate(today.getFullYear(), today.getMonth() + 1, new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate())
+      invoiceStore.invoiceData.terms.billingPeriod = { start: firstOfMonth, end: lastOfMonth }
+    } else {
+      invoiceStore.invoiceData.terms.billingPeriod = null
+    }
+    invoiceStore.saveToLocalStorage()
+  }
+})
+
+const billingPeriodStart = computed({
+  get: () => toCalendarDate(invoiceStore.invoiceData.terms?.billingPeriod?.start),
+  set: (value: CalendarDate) => {
+    if (invoiceStore.invoiceData.terms.billingPeriod) {
+      invoiceStore.invoiceData.terms.billingPeriod.start = value
+      invoiceStore.saveToLocalStorage()
+    }
+  }
+})
+
+const billingPeriodEnd = computed({
+  get: () => toCalendarDate(invoiceStore.invoiceData.terms?.billingPeriod?.end),
+  set: (value: CalendarDate) => {
+    if (invoiceStore.invoiceData.terms.billingPeriod) {
+      invoiceStore.invoiceData.terms.billingPeriod.end = value
+      invoiceStore.saveToLocalStorage()
+    }
+  }
+})
+
 const dueDate = computed({
   get: () => {
     const date = invoiceStore.invoiceData.terms?.dueDate
@@ -72,11 +120,31 @@ watch([issueDate, dueDate], () => {
         />
       </UFormField>
 
-      <UFormField label="Fecha de Vencimiento">
+      <div class="space-y-2">
+        <UCheckbox
+          v-model="hasDueDate"
+          label="Fecha de Vencimiento"
+        />
         <UInputDate
+          v-if="hasDueDate"
           v-model="dueDate"
         />
-      </UFormField>
+      </div>
+
+      <div class="space-y-2">
+        <UCheckbox
+          v-model="hasBillingPeriod"
+          label="Período de Facturación"
+        />
+        <div
+          v-if="hasBillingPeriod"
+          class="flex items-center gap-3"
+        >
+          <UInputDate v-model="billingPeriodStart" />
+          <span class="text-sm text-gray-500">al</span>
+          <UInputDate v-model="billingPeriodEnd" />
+        </div>
+      </div>
     </div>
   </div>
 </template>

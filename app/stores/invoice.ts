@@ -58,7 +58,8 @@ export interface PaymentDetails {
 export interface InvoiceTerms {
   invoiceNumber: string
   issueDate: DateValue
-  dueDate: DateValue
+  dueDate: DateValue | null
+  billingPeriod: { start: DateValue, end: DateValue } | null
 }
 
 export interface InvoiceData {
@@ -112,12 +113,10 @@ const defaultInvoiceData: InvoiceData = {
     swiftCode: ''
   },
   terms: {
-    invoiceNumber: '001',
+    invoiceNumber: '',
     issueDate: new CalendarDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
-    dueDate: (() => {
-      const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-      return new CalendarDate(futureDate.getFullYear(), futureDate.getMonth() + 1, futureDate.getDate())
-    })()
+    dueDate: null,
+    billingPeriod: null
   }
 }
 
@@ -131,10 +130,27 @@ const serializeInvoiceData = (value: InvoiceData): string => {
         : value.terms.issueDate,
       dueDate: value.terms.dueDate instanceof CalendarDate
         ? { year: value.terms.dueDate.year, month: value.terms.dueDate.month, day: value.terms.dueDate.day }
-        : value.terms.dueDate
+        : value.terms.dueDate,
+      billingPeriod: value.terms.billingPeriod
+        ? {
+            start: value.terms.billingPeriod.start instanceof CalendarDate
+              ? { year: value.terms.billingPeriod.start.year, month: value.terms.billingPeriod.start.month, day: value.terms.billingPeriod.start.day }
+              : value.terms.billingPeriod.start,
+            end: value.terms.billingPeriod.end instanceof CalendarDate
+              ? { year: value.terms.billingPeriod.end.year, month: value.terms.billingPeriod.end.month, day: value.terms.billingPeriod.end.day }
+              : value.terms.billingPeriod.end
+          }
+        : null
     }
   }
   return JSON.stringify(serialized)
+}
+
+const toCalendarDateOrNull = (d: DateValueOrPlain | null | undefined): CalendarDate | null => {
+  if (!d) return null
+  if (d instanceof CalendarDate) return d
+  if (typeof d === 'object' && 'year' in d) return new CalendarDate(d.year, d.month, d.day)
+  return null
 }
 
 const deserializeInvoiceData = (value: string): InvoiceData => {
@@ -146,7 +162,8 @@ const deserializeInvoiceData = (value: string): InvoiceData => {
     terms?: {
       invoiceNumber?: string
       issueDate?: DateValueOrPlain
-      dueDate?: DateValueOrPlain
+      dueDate?: DateValueOrPlain | null
+      billingPeriod?: { start: DateValueOrPlain, end: DateValueOrPlain } | null
     }
   }
   return {
@@ -155,17 +172,17 @@ const deserializeInvoiceData = (value: string): InvoiceData => {
     details: parsed.details || defaultInvoiceData.details,
     payment: parsed.payment || defaultInvoiceData.payment,
     terms: {
-      invoiceNumber: parsed.terms?.invoiceNumber || defaultInvoiceData.terms.invoiceNumber,
-      issueDate: parsed.terms?.issueDate && typeof parsed.terms.issueDate === 'object' && 'year' in parsed.terms.issueDate
-        ? new CalendarDate(parsed.terms.issueDate.year, parsed.terms.issueDate.month, parsed.terms.issueDate.day)
-        : parsed.terms?.issueDate instanceof CalendarDate
-          ? parsed.terms.issueDate
-          : defaultInvoiceData.terms.issueDate,
-      dueDate: parsed.terms?.dueDate && typeof parsed.terms.dueDate === 'object' && 'year' in parsed.terms.dueDate
-        ? new CalendarDate(parsed.terms.dueDate.year, parsed.terms.dueDate.month, parsed.terms.dueDate.day)
-        : parsed.terms?.dueDate instanceof CalendarDate
-          ? parsed.terms.dueDate
-          : defaultInvoiceData.terms.dueDate
+      invoiceNumber: parsed.terms?.invoiceNumber ?? defaultInvoiceData.terms.invoiceNumber,
+      issueDate: toCalendarDateOrNull(parsed.terms?.issueDate) ?? defaultInvoiceData.terms.issueDate,
+      dueDate: parsed.terms && 'dueDate' in parsed.terms
+        ? toCalendarDateOrNull(parsed.terms.dueDate)
+        : defaultInvoiceData.terms.dueDate,
+      billingPeriod: parsed.terms?.billingPeriod
+        ? {
+            start: toCalendarDateOrNull(parsed.terms.billingPeriod.start) ?? defaultInvoiceData.terms.issueDate,
+            end: toCalendarDateOrNull(parsed.terms.billingPeriod.end) ?? defaultInvoiceData.terms.issueDate
+          }
+        : null
     }
   }
 }
@@ -217,12 +234,10 @@ export const useInvoiceStore = defineStore('invoice', {
         details: { currency: 'USD', items: [], note: '', discount: 0, tax: 0 },
         payment: { bankName: '', accountNumber: '', accountName: '', ifscCode: '', routingNumber: '', swiftCode: '' },
         terms: {
-          invoiceNumber: '001',
+          invoiceNumber: '',
           issueDate: { year: new Date().getFullYear(), month: new Date().getMonth() + 1, day: new Date().getDate() },
-          dueDate: (() => {
-            const futureDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-            return { year: futureDate.getFullYear(), month: futureDate.getMonth() + 1, day: futureDate.getDate() }
-          })()
+          dueDate: null,
+          billingPeriod: null
         }
       } as unknown as InvoiceData
     }
@@ -371,7 +386,8 @@ export const useInvoiceStore = defineStore('invoice', {
               terms?: {
                 invoiceNumber?: string
                 issueDate?: DateValueOrPlain
-                dueDate?: DateValueOrPlain
+                dueDate?: DateValueOrPlain | null
+                billingPeriod?: { start: DateValueOrPlain, end: DateValueOrPlain } | null
               }
             }
             const importedData: InvoiceData = {
@@ -380,13 +396,17 @@ export const useInvoiceStore = defineStore('invoice', {
               details: data.details || defaultInvoiceData.details,
               payment: data.payment || defaultInvoiceData.payment,
               terms: {
-                invoiceNumber: data.terms?.invoiceNumber || defaultInvoiceData.terms.invoiceNumber,
-                issueDate: data.terms?.issueDate && typeof data.terms.issueDate === 'object' && 'year' in data.terms.issueDate
-                  ? new CalendarDate(data.terms.issueDate.year, data.terms.issueDate.month, data.terms.issueDate.day)
-                  : defaultInvoiceData.terms.issueDate,
-                dueDate: data.terms?.dueDate && typeof data.terms.dueDate === 'object' && 'year' in data.terms.dueDate
-                  ? new CalendarDate(data.terms.dueDate.year, data.terms.dueDate.month, data.terms.dueDate.day)
-                  : defaultInvoiceData.terms.dueDate
+                invoiceNumber: data.terms?.invoiceNumber ?? defaultInvoiceData.terms.invoiceNumber,
+                issueDate: toCalendarDateOrNull(data.terms?.issueDate) ?? defaultInvoiceData.terms.issueDate,
+                dueDate: data.terms && 'dueDate' in data.terms
+                  ? toCalendarDateOrNull(data.terms.dueDate)
+                  : defaultInvoiceData.terms.dueDate,
+                billingPeriod: data.terms?.billingPeriod
+                  ? {
+                      start: toCalendarDateOrNull(data.terms.billingPeriod.start) ?? defaultInvoiceData.terms.issueDate,
+                      end: toCalendarDateOrNull(data.terms.billingPeriod.end) ?? defaultInvoiceData.terms.issueDate
+                    }
+                  : null
               }
             }
             this.invoiceData = importedData

@@ -26,7 +26,9 @@ export const useInvoiceTranslations = (language: InvoiceLanguage) => {
       routingNumber: 'Routing Code',
       ifscCode: 'IFSC Code',
       payableIn: 'PAYABLE IN:',
-      taxId: 'Tax ID:'
+      taxId: 'Tax ID:',
+      billingPeriod: 'BILLING PERIOD:',
+      billingPeriodTo: 'to'
     },
     es: {
       invoice: 'FACTURA',
@@ -52,7 +54,9 @@ export const useInvoiceTranslations = (language: InvoiceLanguage) => {
       routingNumber: 'Routing Code',
       ifscCode: 'IFSC Code',
       payableIn: 'PAGABLE EN:',
-      taxId: 'Tax ID:'
+      taxId: 'CUIT:',
+      billingPeriod: 'PERÍODO DE FACTURACIÓN:',
+      billingPeriodTo: 'al'
     }
   }
 

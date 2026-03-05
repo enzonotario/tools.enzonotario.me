@@ -72,7 +72,7 @@ const invoiceData = computed(() => invoiceStore.invoiceData || {
   details: { currency: 'USD', items: [], discount: 0, tax: 0 },
   payment: { bankName: '', accountNumber: '', accountName: '' },
   terms: {
-    invoiceNumber: '001',
+    invoiceNumber: '',
     issueDate: new CalendarDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate()),
     dueDate: new CalendarDate(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate())
   }
@@ -86,13 +86,21 @@ const formatCurrency = (amount: number) => {
 }
 
 const getCurrencyName = (code: string) => {
-  const currencyNames: Record<string, string> = {
-    USD: 'United States Dollar',
-    EUR: 'Euro',
-    GBP: 'British Pound',
-    ARS: 'Argentine Peso'
+  const currencyNames: Record<string, Record<string, string>> = {
+    en: {
+      USD: 'United States Dollar',
+      EUR: 'Euro',
+      GBP: 'British Pound',
+      ARS: 'Argentine Peso'
+    },
+    es: {
+      USD: 'Dólar Estadounidense',
+      EUR: 'Euro',
+      GBP: 'Libra Esterlina',
+      ARS: 'Pesos Argentinos'
+    }
   }
-  return currencyNames[code] || code
+  return currencyNames[language.value]?.[code] ?? currencyNames.en[code] ?? code
 }
 
 const getCurrencySymbol = (code: string) => {
@@ -140,14 +148,15 @@ onMounted(() => {
       <div class="invoice-preview max-w-4xl mx-auto bg-white">
         <!-- Header -->
         <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-300">
-          <div>
+          <div v-if="invoiceData.terms?.invoiceNumber">
             <div class="text-xs text-gray-500 uppercase tracking-wide mb-0.5">
               {{ t.invoiceNo }}
             </div>
             <div class="font-bold text-lg text-gray-900">
-              {{ invoiceData.terms?.invoiceNumber || '001' }}
+              {{ invoiceData.terms.invoiceNumber }}
             </div>
           </div>
+          <div v-else />
           <div class="flex gap-8 items-center">
             <div class="text-right">
               <div class="text-xs text-gray-500 uppercase tracking-wide mb-0.5">
@@ -157,15 +166,29 @@ onMounted(() => {
                 {{ formatDate(invoiceData.terms?.issueDate) }}
               </div>
             </div>
-            <div class="text-right">
+            <div
+              v-if="invoiceData.terms?.dueDate"
+              class="text-right"
+            >
               <div class="text-xs text-gray-500 uppercase tracking-wide mb-0.5">
                 {{ t.dueDate }}
               </div>
               <div class="font-bold text-base text-gray-900">
-                {{ formatDate(invoiceData.terms?.dueDate) }}
+                {{ formatDate(invoiceData.terms.dueDate) }}
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Billing Period -->
+        <div
+          v-if="invoiceData.terms?.billingPeriod"
+          class="mb-6 text-sm text-gray-700"
+        >
+          <span class="text-xs text-gray-500 uppercase tracking-wide mr-2">{{ t.billingPeriod }}</span>
+          <span class="font-semibold text-gray-900">{{ formatDate(invoiceData.terms.billingPeriod.start) }}</span>
+          <span class="mx-1 text-gray-500">{{ t.billingPeriodTo }}</span>
+          <span class="font-semibold text-gray-900">{{ formatDate(invoiceData.terms.billingPeriod.end) }}</span>
         </div>
 
         <!-- From/To Section -->
