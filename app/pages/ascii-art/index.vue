@@ -16,10 +16,6 @@ const asciiOutput = computed(() => {
   return textToBlockAscii(text, { styleId: styleId.value, horizontalLayout: 'fitted' })
 })
 
-const currentStyleDesc = computed(() =>
-  ASCII_STYLES.find(s => s.id === styleId.value)?.description ?? ''
-)
-
 const copyToClipboard = async () => {
   if (!asciiOutput.value) return
   try {
@@ -40,77 +36,118 @@ const copyToClipboard = async () => {
     })
   }
 }
+
+const clearAll = () => {
+  inputText.value = ''
+}
 </script>
 
 <template>
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-    <UCard>
-      <template #header>
-        <h3 class="font-semibold">
-          {{ $t('asciiArtOptions') }}
-        </h3>
-      </template>
+  <div class="w-full h-full split-pane-wrapper">
+    <ClientOnly>
+      <SplitPane
+        split="vertical"
+        :min-percent="20"
+        :default-percent="50"
+        storage-key="ascii-art"
+        class="h-full"
+      >
+        <template #paneL>
+          <div class="flex flex-col h-full p-1 space-y-2">
+            <div class="shrink-0 flex items-center gap-2 flex-wrap">
+              <span class="text-sm text-muted">{{ $t('asciiArtStyle') }}:</span>
+              <USelectMenu
+                v-model="styleId"
+                :items="ASCII_STYLES.map(s => ({ value: s.id, label: s.name }))"
+                value-key="value"
+                label-key="label"
+                size="sm"
+              />
+              <UButton
+                variant="outline"
+                size="sm"
+                icon="i-lucide-x"
+                @click="clearAll"
+              >
+                {{ $t('Clear') }}
+              </UButton>
+            </div>
+            <div class="flex-1 flex flex-col min-h-0">
+              <UTextarea
+                v-model="inputText"
+                :placeholder="$t('asciiArtTextPlaceholder')"
+                class="font-mono text-sm flex-1"
+                :ui="{
+                  base: 'block w-full h-full resize-none'
+                }"
+                autofocus
+              />
+            </div>
+          </div>
+        </template>
 
-      <div class="space-y-4">
-        <UFormField :label="$t('asciiArtText')">
-          <UTextarea
-            v-model="inputText"
-            :placeholder="$t('asciiArtTextPlaceholder')"
-            :rows="3"
-            class="font-mono"
-            autoresize
-          />
-        </UFormField>
-
-        <UFormField :label="$t('asciiArtStyle')">
-          <USelectMenu
-            v-model="styleId"
-            :items="ASCII_STYLES.map(s => ({ value: s.id, label: s.name }))"
-            value-key="value"
-            label-key="label"
-          />
-        </UFormField>
-
-        <p class="text-sm text-muted">
-          {{ currentStyleDesc }}
-        </p>
-      </div>
-    </UCard>
-
-    <UCard class="flex flex-col min-h-0">
-      <template #header>
-        <div class="flex items-center justify-between gap-2">
-          <h3 class="font-semibold">
-            {{ $t('asciiArtPreview') }}
-          </h3>
-          <UButton
-            icon="i-lucide-copy"
-            size="sm"
-            variant="ghost"
-            :disabled="!inputText.trim()"
-            @click="copyToClipboard"
-          >
-            {{ $t('Copy') }}
-          </UButton>
+        <template #paneR>
+          <div class="flex flex-col h-full p-1 space-y-2">
+            <div class="shrink-0 flex items-center gap-2">
+              <UButton
+                size="sm"
+                icon="i-lucide-copy"
+                :disabled="!asciiOutput"
+                @click="copyToClipboard"
+              >
+                {{ $t('Copy') }}
+              </UButton>
+            </div>
+            <div class="flex-1 flex flex-col min-h-0 overflow-auto">
+              <div
+                class="h-full min-h-0 rounded-lg border border-default bg-muted/50 dark:bg-muted/20 overflow-auto p-4"
+              >
+                <pre
+                  v-if="asciiOutput"
+                  class="font-mono text-sm leading-tight whitespace-pre select-all"
+                  style="font-size: min(0.75rem, 12px); line-height: 1.15; letter-spacing: 0;"
+                >{{ asciiOutput }}</pre>
+                <p
+                  v-else
+                  class="text-muted text-sm"
+                >
+                  {{ $t('asciiArtTextPlaceholder') }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </template>
+      </SplitPane>
+      <template #fallback>
+        <div class="flex gap-6 h-full">
+          <div class="flex-1 flex flex-col space-y-2 p-1">
+            <div class="flex-1 flex flex-col min-h-0">
+              <UTextarea
+                v-model="inputText"
+                :placeholder="$t('asciiArtTextPlaceholder')"
+                class="font-mono text-sm flex-1"
+                :ui="{
+                  base: 'block w-full h-full resize-none'
+                }"
+              />
+            </div>
+          </div>
+          <div class="flex-1 flex flex-col space-y-2 p-1">
+            <div class="flex-1 flex flex-col min-h-0 overflow-auto rounded-lg border border-default bg-muted/50 dark:bg-muted/20 p-4 items-center justify-center">
+              <p class="text-muted text-sm">
+                {{ $t('Loading...') }}
+              </p>
+            </div>
+          </div>
         </div>
       </template>
-
-      <div class="flex-1 min-h-0 overflow-auto">
-        <div
-          class="p-4 rounded-lg bg-muted/50 dark:bg-muted/20 border border-default overflow-x-auto"
-        >
-          <pre
-            class="font-mono text-sm leading-tight whitespace-pre select-all"
-            style="font-size: min(0.75rem, 12px); line-height: 1.15; letter-spacing: 0;"
-          >{{ asciiOutput }}</pre>
-        </div>
-      </div>
-
-      <template #footer>
-        <p class="text-xs text-muted">
-          {{ $t('asciiArtHint') }}
-        </p>
-      </template>
-    </UCard>
+    </ClientOnly>
   </div>
 </template>
+
+<style scoped>
+.split-pane-wrapper {
+  position: relative;
+  height: 100%;
+}
+</style>
