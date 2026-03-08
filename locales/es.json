@@ -164,5 +164,11 @@
   "asciiArtSpacing": "Espacio entre letras",
   "asciiArtPreview": "Vista previa",
   "asciiArtHint": "Selecciona la vista previa y copia. Usa la fuente ANSI Shadow (caracteres de caja).",
-  "asciiArtStyleBlockDesc": "Estilo con caracteres de caja (██╗ ╚═╝ ║)."
+  "asciiArtStyleBlockDesc": "Estilo con caracteres de caja (██╗ ╚═╝ ║).",
+  "Hash Generator": "Generador de Hash",
+  "Generate MD5, SHA-1, SHA-256 and SHA-512 hashes from text": "Genera hashes MD5, SHA-1, SHA-256 y SHA-512 a partir de texto",
+  "hashPlaceholder": "Escribe el texto para hashear...",
+  "Case Converter": "Conversor de mayúsculas/minúsculas",
+  "Convert text between camelCase, snake_case, kebab-case and more": "Convierte texto entre camelCase, snake_case, kebab-case y más",
+  "caseConverterPlaceholder": "Escribe el texto a convertir..."
 }

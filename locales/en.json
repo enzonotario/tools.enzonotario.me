@@ -164,5 +164,11 @@
   "asciiArtSpacing": "Spacing between letters",
   "asciiArtPreview": "Preview",
   "asciiArtHint": "Select the preview and copy. Uses ANSI Shadow font (box-drawing characters).",
-  "asciiArtStyleBlockDesc": "Box-drawing style (██╗ ╚═╝ ║)."
+  "asciiArtStyleBlockDesc": "Box-drawing style (██╗ ╚═╝ ║).",
+  "Hash Generator": "Hash Generator",
+  "Generate MD5, SHA-1, SHA-256 and SHA-512 hashes from text": "Generate MD5, SHA-1, SHA-256 and SHA-512 hashes from text",
+  "hashPlaceholder": "Enter text to hash...",
+  "Case Converter": "Case Converter",
+  "Convert text between camelCase, snake_case, kebab-case and more": "Convert text between camelCase, snake_case, kebab-case and more",
+  "caseConverterPlaceholder": "Enter text to convert..."
 }

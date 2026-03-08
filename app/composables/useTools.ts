@@ -72,6 +72,22 @@ export const useTools = () => {
       to: '/string-escape'
     },
     {
+      id: 'hash-generator',
+      label: t('Hash Generator'),
+      description: t('Generate MD5, SHA-1, SHA-256 and SHA-512 hashes from text'),
+      icon: 'i-lucide-fingerprint',
+      category: 'development',
+      to: '/hash-generator'
+    },
+    {
+      id: 'case-converter',
+      label: t('Case Converter'),
+      description: t('Convert text between camelCase, snake_case, kebab-case and more'),
+      icon: 'i-lucide-case-sensitive',
+      category: 'development',
+      to: '/case-converter'
+    },
+    {
       id: 'lorem-ipsum',
       label: t('Lorem Ipsum Generator'),
       description: t('Generate placeholder text for your designs'),
