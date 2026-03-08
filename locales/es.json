@@ -153,5 +153,16 @@
   "Output": "Salida",
   "Paste your text here...": "Pega tu texto aquí...",
   "Result will appear here...": "El resultado aparecerá aquí...",
-  "Failed to copy to clipboard": "Error al copiar al portapapeles"
+  "Failed to copy to clipboard": "Error al copiar al portapapeles",
+  "Text to ASCII Art": "Texto a arte ASCII",
+  "Generate text in ASCII art styles, block/terminal style": "Genera texto en estilos de arte ASCII, estilo block/terminal",
+  "asciiArtOptions": "Opciones",
+  "asciiArtText": "Texto",
+  "asciiArtTextPlaceholder": "Escribe tu texto (ej. HOLA MUNDO)",
+  "asciiArtBlockChar": "Carácter de bloque",
+  "asciiArtStyle": "Estilo",
+  "asciiArtSpacing": "Espacio entre letras",
+  "asciiArtPreview": "Vista previa",
+  "asciiArtHint": "Selecciona la vista previa y copia. Usa la fuente ANSI Shadow (caracteres de caja).",
+  "asciiArtStyleBlockDesc": "Estilo con caracteres de caja (██╗ ╚═╝ ║)."
 }

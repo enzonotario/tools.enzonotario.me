@@ -153,5 +153,16 @@
   "Output": "Output",
   "Paste your text here...": "Paste your text here...",
   "Result will appear here...": "Result will appear here...",
-  "Failed to copy to clipboard": "Failed to copy to clipboard"
+  "Failed to copy to clipboard": "Failed to copy to clipboard",
+  "Text to ASCII Art": "Text to ASCII Art",
+  "Generate text in ASCII art styles, block/terminal style": "Generate text in ASCII art styles, block/terminal style",
+  "asciiArtOptions": "Options",
+  "asciiArtText": "Text",
+  "asciiArtTextPlaceholder": "Type your text (e.g. HELLO WORLD)",
+  "asciiArtStyle": "Style",
+  "asciiArtBlockChar": "Block character",
+  "asciiArtSpacing": "Spacing between letters",
+  "asciiArtPreview": "Preview",
+  "asciiArtHint": "Select the preview and copy. Uses ANSI Shadow font (box-drawing characters).",
+  "asciiArtStyleBlockDesc": "Box-drawing style (██╗ ╚═╝ ║)."
 }

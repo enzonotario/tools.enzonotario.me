@@ -80,6 +80,14 @@ export const useTools = () => {
       to: '/lorem-ipsum'
     },
     {
+      id: 'ascii-art',
+      label: t('Text to ASCII Art'),
+      description: t('Generate text in ASCII art styles, block/terminal style'),
+      icon: 'i-lucide-square-dashed-mouse-pointer',
+      category: 'design',
+      to: '/ascii-art'
+    },
+    {
       id: 'password-generator',
       label: t('Password Generator'),
       description: t('Generate secure, random passwords with customizable options'),

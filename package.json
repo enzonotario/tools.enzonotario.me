@@ -19,6 +19,7 @@
     "@nuxtjs/i18n": "^10.2.1",
     "@pinia/nuxt": "^0.11.3",
     "@vueuse/core": "^14.1.0",
+    "figlet": "^1.10.0",
     "fracturedjsonjs": "^5.0.1",
     "graceful-json": "^0.1.0",
     "js-yaml": "^4.1.1",
