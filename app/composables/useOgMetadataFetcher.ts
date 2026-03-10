@@ -24,9 +24,7 @@ export const useOgMetadataFetcher = () => {
     }
 
     try {
-      // Intentar usar un servicio público de proxy CORS
-      // Opción 1: Usar allorigins.win (servicio público)
-      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(normalizedUrl)}`
+      const proxyUrl = `https://whateverorigin.org/get?url=${encodeURIComponent(normalizedUrl)}`
       const response = await fetch(proxyUrl)
 
       if (!response.ok) {
