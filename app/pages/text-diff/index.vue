@@ -197,7 +197,6 @@ const currentTheme = computed(() => {
           {{ $t('Share') }}
         </UButton>
 
-
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted">{{ $t('View') }}:</span>
           <USelectMenu
