@@ -7,6 +7,7 @@ type InputFormatType = FormatType | 'auto-detect'
 
 const { t } = useI18n()
 const colorMode = useColorMode()
+const { share, getSharedData } = useShare()
 
 definePageMeta({
   layout: 'dashboard'
@@ -17,6 +18,25 @@ const rightInput = ref('')
 const inputFormat = ref<InputFormatType>('auto-detect')
 const detectedFormat = ref<FormatType>('text')
 const diffMode = ref<'split' | 'unified'>('split')
+
+const handleShare = () => {
+  share({
+    leftInput: leftInput.value,
+    rightInput: rightInput.value,
+    inputFormat: inputFormat.value,
+    diffMode: diffMode.value
+  })
+}
+
+onMounted(() => {
+  const sharedData = getSharedData<any>()
+  if (sharedData) {
+    if (sharedData.leftInput) leftInput.value = sharedData.leftInput
+    if (sharedData.rightInput) rightInput.value = sharedData.rightInput
+    if (sharedData.inputFormat) inputFormat.value = sharedData.inputFormat
+    if (sharedData.diffMode) diffMode.value = sharedData.diffMode
+  }
+})
 
 // Function to detect format from content
 const detectFormat = (content: string): FormatType => {
@@ -142,27 +162,41 @@ const currentTheme = computed(() => {
   <div class="w-full h-full flex flex-col">
     <Teleport to="#header-actions-portal">
       <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+          {{ $t('Text Diff') }}
+        </span>
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted">{{ $t('Format') }}:</span>
           <USelectMenu
             v-model="inputFormat"
             :items="[
               { label: $t('Auto-detect'), value: 'auto-detect' },
-              { label: 'Text', value: 'text' },
+              { label: 'Plaintext', value: 'text' },
               { label: 'JSON', value: 'json' },
               { label: 'XML', value: 'xml' },
-              { label: 'HTML', value: 'html' },
-              { label: 'CSS', value: 'css' },
               { label: 'YAML', value: 'yaml' },
               { label: 'TOML', value: 'toml' },
               { label: 'JavaScript', value: 'javascript' },
-              { label: 'TypeScript', value: 'typescript' }
+              { label: 'TypeScript', value: 'typescript' },
+              { label: 'HTML', value: 'html' },
+              { label: 'CSS', value: 'css' }
             ]"
             value-key="value"
             label-key="label"
             size="sm"
           />
         </div>
+
+        <UButton
+          size="sm"
+          icon="i-lucide-share-2"
+          color="neutral"
+          variant="outline"
+          @click="handleShare"
+        >
+          {{ $t('Share') }}
+        </UButton>
+
 
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted">{{ $t('View') }}:</span>

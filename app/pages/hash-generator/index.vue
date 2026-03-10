@@ -7,9 +7,21 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
+const { share, getSharedData } = useShare()
 
 const input = ref('')
 const hashes = ref<{ md5: string, sha1: string, sha256: string, sha512: string } | null>(null)
+
+const handleShare = () => {
+  share({ input: input.value })
+}
+
+onMounted(() => {
+  const sharedData = getSharedData<any>()
+  if (sharedData?.input) {
+    input.value = sharedData.input
+  }
+})
 
 watchEffect(() => {
   const text = input.value
@@ -48,14 +60,27 @@ const clearAll = () => {
 
 <template>
   <Teleport to="#header-actions-portal">
-    <UButton
-      variant="outline"
-      size="sm"
-      icon="i-lucide-x"
-      @click="clearAll"
-    >
-      {{ $t('Clear') }}
-    </UButton>
+    <div class="flex items-center gap-2">
+      <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+        {{ $t('Hash Generator') }}
+      </span>
+      <UButton
+        variant="outline"
+        size="sm"
+        icon="i-lucide-share-2"
+        @click="handleShare"
+      >
+        {{ $t('Share') }}
+      </UButton>
+      <UButton
+        variant="outline"
+        size="sm"
+        icon="i-lucide-x"
+        @click="clearAll"
+      >
+        {{ $t('Clear') }}
+      </UButton>
+    </div>
   </Teleport>
 
   <div class="w-full h-full split-pane-wrapper">

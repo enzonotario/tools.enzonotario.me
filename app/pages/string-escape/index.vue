@@ -5,6 +5,22 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
+const { share, getSharedData } = useShare()
+
+const handleShare = () => {
+  share({
+    inputText: inputText.value,
+    selectedType: selectedType.value
+  })
+}
+
+onMounted(() => {
+  const sharedData = getSharedData<any>()
+  if (sharedData) {
+    if (sharedData.inputText) inputText.value = sharedData.inputText
+    if (sharedData.selectedType) selectedType.value = sharedData.selectedType
+  }
+})
 
 type EscapeType = 'json' | 'html' | 'url' | 'base64' | 'unicode' | 'backslash'
 
@@ -220,6 +236,9 @@ const swapTexts = () => {
   <div class="w-full h-full flex flex-col">
     <Teleport to="#header-actions-portal">
       <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+          {{ $t('String Escape') }}
+        </span>
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted">{{ $t('Escape Type') }}:</span>
           <USelectMenu
@@ -230,6 +249,16 @@ const swapTexts = () => {
             size="sm"
           />
         </div>
+
+        <UButton
+          size="sm"
+          icon="i-lucide-share-2"
+          color="neutral"
+          variant="outline"
+          @click="handleShare"
+        >
+          {{ $t('Share') }}
+        </UButton>
 
         <UButton
           size="sm"

@@ -7,6 +7,7 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
+const { share, getSharedData } = useShare()
 
 const input = ref('# Markdown Preview\n\nTry typing some markdown here!\n\n## Features\n- Real-time preview\n- Synchronized scrolling\n- Support for **bold**, *italic*, and `code` blocks\n\n```javascript\nconsole.log("Hello, world!");\n```')
 
@@ -59,6 +60,11 @@ const handlePreviewScroll = (event: Event) => {
 
 // Add event listener to textarea manually on mount
 onMounted(() => {
+  const sharedData = getSharedData<{ input: string }>()
+  if (sharedData?.input) {
+    input.value = sharedData.input
+  }
+
   const textarea = editorRef.value?.$el?.querySelector('textarea')
   if (textarea) {
     textarea.addEventListener('scroll', handleEditorScroll)
@@ -74,6 +80,10 @@ onUnmounted(() => {
 
 const clearInput = () => {
   input.value = ''
+}
+
+const handleShare = () => {
+  share({ input: input.value })
 }
 
 const copyHtml = async () => {
@@ -125,6 +135,15 @@ const copyHtml = async () => {
             @click="clearInput"
           >
             {{ $t('Clear') }}
+          </UButton>
+          <UButton
+            size="sm"
+            icon="i-lucide-share-2"
+            color="neutral"
+            variant="outline"
+            @click="handleShare"
+          >
+            {{ $t('Share') }}
           </UButton>
           <UButton
             size="sm"

@@ -14,6 +14,7 @@ type InputFormatType = FormatType | 'auto-detect'
 
 const { t } = useI18n()
 const toast = useToast()
+const { share, getSharedData } = useShare()
 
 definePageMeta({
   layout: 'dashboard'
@@ -299,8 +300,29 @@ watch(inputFormat, async (newFormat, oldFormat) => {
   }
 })
 
+const handleShare = () => {
+  share({
+    input: input.value,
+    inputFormat: inputFormat.value,
+    outputFormat: outputFormat.value,
+    sortKeys: sortKeys.value,
+    isMinified: isMinified.value,
+    useFracturedJson: useFracturedJson.value
+  })
+}
+
 // Initial format detection
 onMounted(() => {
+  const sharedData = getSharedData<any>()
+  if (sharedData) {
+    if (sharedData.input) input.value = sharedData.input
+    if (sharedData.inputFormat) inputFormat.value = sharedData.inputFormat
+    if (sharedData.outputFormat) outputFormat.value = sharedData.outputFormat
+    if (sharedData.sortKeys !== undefined) sortKeys.value = sharedData.sortKeys
+    if (sharedData.isMinified !== undefined) isMinified.value = sharedData.isMinified
+    if (sharedData.useFracturedJson !== undefined) useFracturedJson.value = sharedData.useFracturedJson
+  }
+
   if (input.value.trim() && inputFormat.value === 'auto-detect') {
     detectedFormat.value = detectFormat(input.value)
   }
@@ -310,6 +332,22 @@ onMounted(() => {
 <template>
   <div class="w-full h-full split-pane-wrapper">
     <ClientOnly>
+      <Teleport to="#header-actions-portal">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+            {{ $t('Formatter') }}
+          </span>
+          <UButton
+            size="sm"
+            icon="i-lucide-share-2"
+            color="neutral"
+            variant="outline"
+            @click="handleShare"
+          >
+            {{ $t('Share') }}
+          </UButton>
+        </div>
+      </Teleport>
       <SplitPane
         split="vertical"
         :min-percent="20"

@@ -7,9 +7,25 @@ definePageMeta({
 
 const { t } = useI18n()
 const toast = useToast()
+const { share, getSharedData } = useShare()
 
 const inputText = ref('HELLO WORLD')
 const styleId = ref<'ansi-shadow' | 'ansi-regular' | 'ansi-compact'>('ansi-shadow')
+
+const handleShare = () => {
+  share({
+    inputText: inputText.value,
+    styleId: styleId.value
+  })
+}
+
+onMounted(() => {
+  const sharedData = getSharedData<any>()
+  if (sharedData) {
+    if (sharedData.inputText) inputText.value = sharedData.inputText
+    if (sharedData.styleId) styleId.value = sharedData.styleId
+  }
+})
 
 const asciiOutput = computed(() => {
   const text = inputText.value.trim() || ' '
@@ -45,6 +61,52 @@ const clearAll = () => {
 <template>
   <div class="w-full h-full split-pane-wrapper">
     <ClientOnly>
+      <Teleport to="#header-actions-portal">
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+            {{ $t('Text to ASCII Art') }}
+          </span>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-muted">{{ $t('asciiArtStyle') }}:</span>
+            <USelectMenu
+              v-model="styleId"
+              :items="ASCII_STYLES.map(s => ({ value: s.id, label: s.name }))"
+              value-key="value"
+              label-key="label"
+              size="sm"
+            />
+          </div>
+
+          <UButton
+            size="sm"
+            icon="i-lucide-share-2"
+            color="neutral"
+            variant="outline"
+            @click="handleShare"
+          >
+            {{ $t('Share') }}
+          </UButton>
+
+          <UButton
+            size="sm"
+            icon="i-lucide-copy"
+            :disabled="!asciiOutput"
+            @click="copyToClipboard"
+          >
+            {{ $t('Copy') }}
+          </UButton>
+
+          <UButton
+            variant="outline"
+            size="sm"
+            icon="i-lucide-x"
+            @click="clearAll"
+          >
+            {{ $t('Clear') }}
+          </UButton>
+        </div>
+      </Teleport>
+
       <SplitPane
         split="vertical"
         :min-percent="20"
@@ -54,24 +116,6 @@ const clearAll = () => {
       >
         <template #paneL>
           <div class="flex flex-col h-full p-1 space-y-2">
-            <div class="shrink-0 flex items-center gap-2 flex-wrap">
-              <span class="text-sm text-muted">{{ $t('asciiArtStyle') }}:</span>
-              <USelectMenu
-                v-model="styleId"
-                :items="ASCII_STYLES.map(s => ({ value: s.id, label: s.name }))"
-                value-key="value"
-                label-key="label"
-                size="sm"
-              />
-              <UButton
-                variant="outline"
-                size="sm"
-                icon="i-lucide-x"
-                @click="clearAll"
-              >
-                {{ $t('Clear') }}
-              </UButton>
-            </div>
             <div class="flex-1 flex flex-col min-h-0">
               <UTextarea
                 v-model="inputText"
@@ -88,16 +132,6 @@ const clearAll = () => {
 
         <template #paneR>
           <div class="flex flex-col h-full p-1 space-y-2">
-            <div class="shrink-0 flex items-center gap-2">
-              <UButton
-                size="sm"
-                icon="i-lucide-copy"
-                :disabled="!asciiOutput"
-                @click="copyToClipboard"
-              >
-                {{ $t('Copy') }}
-              </UButton>
-            </div>
             <div class="flex-1 flex flex-col min-h-0 overflow-auto">
               <div
                 class="h-full min-h-0 rounded-lg border border-default bg-muted/50 dark:bg-muted/20 overflow-auto p-4"
