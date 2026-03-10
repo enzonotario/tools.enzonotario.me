@@ -26,6 +26,7 @@
     "js-yaml": "^4.1.1",
     "jstoxml": "^7.0.1",
     "lorem-ipsum": "^2.0.8",
+    "markdown-it": "^14.1.1",
     "nuxt": "^4.2.2",
     "pinia": "^3.0.4",
     "pretty-xml-vue3": "^1.0.6",
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@nuxt/eslint": "^1.12.1",
     "@types/js-yaml": "^4.0.9",
+    "@types/markdown-it": "^14.1.2",
     "eslint": "^9.39.2",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.1"

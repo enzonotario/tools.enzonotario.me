@@ -104,6 +104,14 @@ export const useTools = () => {
       to: '/ascii-art'
     },
     {
+      id: 'markdown-preview',
+      label: t('Markdown Preview'),
+      description: t('Preview your markdown code with synchronized scrolling'),
+      icon: 'i-lucide-file-text',
+      category: 'design',
+      to: '/markdown-preview'
+    },
+    {
       id: 'password-generator',
       label: t('Password Generator'),
       description: t('Generate secure, random passwords with customizable options'),
