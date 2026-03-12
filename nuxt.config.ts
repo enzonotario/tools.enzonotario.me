@@ -4,8 +4,13 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@pinia/nuxt',
-    '@nuxtjs/i18n'
+    '@nuxtjs/i18n',
+    'nuxt-gtag'
   ],
+
+  gtag: {
+    id: 'G-E4XDRKDR6E'
+  },
 
   devtools: {
     enabled: true
