@@ -4,6 +4,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Token Generator') })
 const tokenStore = useTokenGeneratorStore()
 const toast = useToast()
 

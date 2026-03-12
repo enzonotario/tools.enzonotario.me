@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Lorem Ipsum Generator') })
 const toast = useToast()
 
 const paragraphs = ref(3)

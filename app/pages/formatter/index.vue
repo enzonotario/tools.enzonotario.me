@@ -13,6 +13,7 @@ type FormatType = 'json' | 'xml' | 'yaml' | 'toml'
 type InputFormatType = FormatType | 'auto-detect'
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Formatter') })
 const toast = useToast()
 const { share, getSharedData } = useShare()
 

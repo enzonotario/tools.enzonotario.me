@@ -21,7 +21,7 @@ const navigationItems = computed<NavigationMenuItem[][]>(() => {
         children: categoryTools.map(tool => ({
           label: tool.label,
           icon: tool.icon,
-          to: tool.to,
+          to: localePath(tool.to),
           active: route.path === tool.to || route.path === localePath(tool.to)
         }))
       })

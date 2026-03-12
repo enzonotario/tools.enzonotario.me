@@ -8,10 +8,6 @@ export default defineNuxtConfig({
     'nuxt-gtag'
   ],
 
-  gtag: {
-    id: 'G-E4XDRKDR6E'
-  },
-
   devtools: {
     enabled: true
   },
@@ -49,6 +45,10 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  gtag: {
+    id: 'G-E4XDRKDR6E'
   },
 
   i18n: {

@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Case Converter') })
 const toast = useToast()
 const { share, getSharedData } = useShare()
 

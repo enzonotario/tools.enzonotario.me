@@ -7,6 +7,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('OG Debugger') })
 const toast = useToast()
 const { metadata, loading, error, fetchOgMetadata, getPlatformPreview } = useOgDebugger()
 

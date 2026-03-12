@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Markdown Preview') })
 const toast = useToast()
 const { share, getSharedData } = useShare()
 

@@ -4,6 +4,10 @@ const locale = useI18n()
 const route = useRoute()
 
 useHead({
+  titleTemplate: (titleChunk) => {
+    const base = t('Tools - enzonotario.me')
+    return titleChunk ? `${titleChunk} - ${base}` : base
+  },
   meta: [
     { name: 'viewport', content: 'width=device-width, initial-scale=1' }
   ],

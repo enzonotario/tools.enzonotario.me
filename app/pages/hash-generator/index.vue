@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Hash Generator') })
 const toast = useToast()
 const { share, getSharedData } = useShare()
 

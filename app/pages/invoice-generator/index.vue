@@ -5,6 +5,8 @@ definePageMeta({
   layout: 'dashboard'
 })
 
+const { t } = useI18n()
+useSeoMeta({ title: t('Invoice Generator') })
 const invoiceStore = useInvoiceStore()
 
 const steps = [

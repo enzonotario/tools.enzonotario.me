@@ -1,6 +1,13 @@
 <script setup lang="ts">
+const { t } = useI18n()
+const localePath = useLocalePath()
+
 definePageMeta({
   layout: 'dashboard'
+})
+
+useSeoMeta({
+  title: t('Home')
 })
 
 const { tools, categories } = useTools()
@@ -43,7 +50,7 @@ const toolsByCategory = computed(() => {
         <NuxtLink
           v-for="tool in category.tools"
           :key="tool.id"
-          :to="tool.to"
+          :to="localePath(tool.to)"
           class="block"
         >
           <UCard

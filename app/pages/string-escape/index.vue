@@ -4,6 +4,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('String Escape') })
 const toast = useToast()
 const { share, getSharedData } = useShare()
 

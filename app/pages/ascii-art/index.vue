@@ -6,6 +6,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Text to ASCII Art') })
 const toast = useToast()
 const { share, getSharedData } = useShare()
 

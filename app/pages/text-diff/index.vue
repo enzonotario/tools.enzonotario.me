@@ -6,6 +6,7 @@ type FormatType = 'text' | 'json' | 'xml' | 'yaml' | 'toml' | 'javascript' | 'ty
 type InputFormatType = FormatType | 'auto-detect'
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Text Diff Comparison') })
 const colorMode = useColorMode()
 const { share, getSharedData } = useShare()
 

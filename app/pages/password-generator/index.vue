@@ -4,6 +4,7 @@ definePageMeta({
 })
 
 const { t } = useI18n()
+useSeoMeta({ title: t('Password Generator') })
 const passwordStore = usePasswordGeneratorStore()
 const toast = useToast()
 
