@@ -46,9 +46,15 @@ function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
     const d = max - min
     s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
     switch (max) {
-      case rn: h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6; break
-      case gn: h = ((bn - rn) / d + 2) / 6; break
-      case bn: h = ((rn - gn) / d + 4) / 6; break
+      case rn:
+        h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6
+        break
+      case gn:
+        h = ((bn - rn) / d + 2) / 6
+        break
+      case bn:
+        h = ((rn - gn) / d + 4) / 6
+        break
     }
   }
   return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)]

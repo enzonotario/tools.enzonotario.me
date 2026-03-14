@@ -314,7 +314,14 @@ const handleShare = () => {
 
 // Initial format detection
 onMounted(() => {
-  const sharedData = getSharedData<any>()
+  const sharedData = getSharedData<{
+    input?: string
+    inputFormat?: InputFormatType
+    outputFormat?: FormatType
+    sortKeys?: boolean
+    isMinified?: boolean
+    useFracturedJson?: boolean
+  }>()
   if (sharedData) {
     if (sharedData.input) input.value = sharedData.input
     if (sharedData.inputFormat) inputFormat.value = sharedData.inputFormat

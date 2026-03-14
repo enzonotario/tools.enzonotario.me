@@ -22,7 +22,7 @@ const renderedHtml = computed(() => {
   return md.render(input.value)
 })
 
-const editorRef = ref<any>(null)
+const editorRef = ref<ComponentPublicInstance | null>(null)
 const previewRef = ref<HTMLElement | null>(null)
 
 const isScrollingEditor = ref(false)
@@ -42,7 +42,9 @@ const handleEditorScroll = (event: Event) => {
     isScrollingEditor.value = true
     syncScroll(textarea, previewRef.value)
     // Clear the flag after a short delay
-    setTimeout(() => { isScrollingEditor.value = false }, 50)
+    setTimeout(() => {
+      isScrollingEditor.value = false
+    }, 50)
   }
 }
 
@@ -55,7 +57,9 @@ const handlePreviewScroll = (event: Event) => {
     isScrollingPreview.value = true
     syncScroll(preview, textarea)
     // Clear the flag after a short delay
-    setTimeout(() => { isScrollingPreview.value = false }, 50)
+    setTimeout(() => {
+      isScrollingPreview.value = false
+    }, 50)
   }
 }
 

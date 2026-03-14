@@ -69,7 +69,15 @@ const handleShare = () => {
 }
 
 onMounted(() => {
-  const sharedData = getSharedData<any>()
+  const sharedData = getSharedData<{
+    inputText?: string
+    styleId?: 'ansi-shadow' | 'ansi-regular' | 'ansi-compact'
+    colorMode?: 'none' | 'solid' | 'gradient'
+    solidColor?: string
+    gradientFrom?: string
+    gradientTo?: string
+    gradientDirection?: string
+  }>()
   if (sharedData) {
     if (sharedData.inputText) inputText.value = sharedData.inputText
     if (sharedData.styleId) styleId.value = sharedData.styleId

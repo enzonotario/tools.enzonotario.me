@@ -16,7 +16,10 @@ const handleShare = () => {
 }
 
 onMounted(() => {
-  const sharedData = getSharedData<any>()
+  const sharedData = getSharedData<{
+    inputText?: string
+    selectedType?: EscapeType
+  }>()
   if (sharedData) {
     if (sharedData.inputText) inputText.value = sharedData.inputText
     if (sharedData.selectedType) selectedType.value = sharedData.selectedType

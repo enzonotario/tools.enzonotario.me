@@ -6,7 +6,7 @@ export const useShare = () => {
   const route = useRoute()
   const router = useRouter()
 
-  const share = async (data: any) => {
+  const share = async (data: unknown) => {
     try {
       const jsonStr = JSON.stringify(data)
       const compressed = LZString.compressToEncodedURIComponent(jsonStr)

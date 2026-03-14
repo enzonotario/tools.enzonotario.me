@@ -30,7 +30,12 @@ const handleShare = () => {
 }
 
 onMounted(() => {
-  const sharedData = getSharedData<any>()
+  const sharedData = getSharedData<{
+    leftInput?: string
+    rightInput?: string
+    inputFormat?: InputFormatType
+    diffMode?: 'split' | 'unified'
+  }>()
   if (sharedData) {
     if (sharedData.leftInput) leftInput.value = sharedData.leftInput
     if (sharedData.rightInput) rightInput.value = sharedData.rightInput
