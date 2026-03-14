@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useStorage } from '@vueuse/core'
 import { TIMEZONES, formatTime, formatDate, isDayTime, getUtcOffset, getTimeHHMM, parseTimeInTimezone, type TimezoneEntry } from '~/utils/timezones'
 
 definePageMeta({ layout: 'dashboard' })
@@ -19,9 +20,7 @@ onMounted(() => {
 
   const sharedData = getSharedData<{ timezones: string[], pinnedDate?: string | null }>()
   if (sharedData?.timezones) {
-    selectedTimezones.value = sharedData.timezones
-      .map(tz => TIMEZONES.find(t => t.timezone === tz))
-      .filter(Boolean) as TimezoneEntry[]
+    selectedTimezoneIds.value = sharedData.timezones
   }
   if (sharedData?.pinnedDate) {
     const d = new Date(sharedData.pinnedDate)
@@ -98,7 +97,13 @@ function isValidTime(val: string): boolean {
 const UTC_TZ = TIMEZONES.find(tz => tz.timezone === 'UTC')!
 
 const search = ref('')
-const selectedTimezones = ref<TimezoneEntry[]>([])
+const selectedTimezoneIds = useStorage<string[]>('timezone-scheduler-selected', [])
+
+const selectedTimezones = computed(() => {
+  return selectedTimezoneIds.value
+    .map(tzId => TIMEZONES.find(t => t.timezone === tzId))
+    .filter(Boolean) as TimezoneEntry[]
+})
 
 const filteredTimezones = computed(() => {
   const q = search.value.toLowerCase()
@@ -120,23 +125,23 @@ function timezonesByRegion(region: string) {
 }
 
 function isSelected(tz: TimezoneEntry) {
-  return selectedTimezones.value.some(s => s.timezone === tz.timezone)
+  return selectedTimezoneIds.value.includes(tz.timezone)
 }
 
 function toggleTimezone(tz: TimezoneEntry) {
   if (isSelected(tz)) {
-    selectedTimezones.value = selectedTimezones.value.filter(s => s.timezone !== tz.timezone)
+    selectedTimezoneIds.value = selectedTimezoneIds.value.filter(id => id !== tz.timezone)
   } else {
-    selectedTimezones.value = [...selectedTimezones.value, tz]
+    selectedTimezoneIds.value = [...selectedTimezoneIds.value, tz.timezone]
   }
 }
 
 function removeTimezone(tz: TimezoneEntry) {
-  selectedTimezones.value = selectedTimezones.value.filter(s => s.timezone !== tz.timezone)
+  selectedTimezoneIds.value = selectedTimezoneIds.value.filter(id => id !== tz.timezone)
 }
 
 function clearAll() {
-  selectedTimezones.value = []
+  selectedTimezoneIds.value = []
   search.value = ''
   resumeLive()
 }
