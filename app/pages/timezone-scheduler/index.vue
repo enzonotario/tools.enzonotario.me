@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { useStorage } from '@vueuse/core'
-import { TIMEZONES, formatTime, formatDate, isDayTime, getUtcOffset, getTimeHHMM, parseTimeInTimezone, type TimezoneEntry } from '~/utils/timezones'
+import { TIMEZONES, formatTime, formatDate, isDayTime, getUtcOffset, getTimeHHMM, parseTimeInTimezone, localizeCity, localizeCountry, type TimezoneEntry } from '~/utils/timezones'
 
 definePageMeta({ layout: 'dashboard' })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 useSeoMeta({ title: t('Timezone Scheduler') })
+
+const tzCity = (tz: TimezoneEntry) => localizeCity(tz, locale.value)
+const tzCountry = (tz: TimezoneEntry) => localizeCountry(tz.countryCode, locale.value) || tz.country
 const toast = useToast()
 const { share, getSharedData } = useShare()
 
@@ -113,6 +116,8 @@ const filteredTimezones = computed(() => {
   return list.filter(tz =>
     tz.country.toLowerCase().includes(q)
     || tz.city.toLowerCase().includes(q)
+    || tzCity(tz).toLowerCase().includes(q)
+    || tzCountry(tz).toLowerCase().includes(q)
     || tz.timezone.toLowerCase().includes(q)
     || tz.region.toLowerCase().includes(q)
   )
@@ -217,7 +222,7 @@ async function copyTime(tz: TimezoneEntry) {
   const time = formatTime(displayDate.value, tz.timezone, false)
   const date = formatDate(displayDate.value, tz.timezone)
   try {
-    await navigator.clipboard.writeText(`${tz.city} (${tz.timezone}): ${time} - ${date}`)
+    await navigator.clipboard.writeText(`${tzCity(tz)} (${tz.timezone}): ${time} - ${date}`)
     toast.add({ title: t('Copied'), description: t('Copied to clipboard'), icon: 'i-lucide-check', color: 'success' })
   } catch {
     toast.add({ title: t('Failed to copy'), icon: 'i-lucide-alert-circle', color: 'error' })
@@ -292,10 +297,10 @@ async function copyTime(tz: TimezoneEntry) {
                     <span class="text-lg leading-none shrink-0">{{ tz.flag }}</span>
                     <div class="flex-1 min-w-0">
                       <div class="text-sm font-medium truncate">
-                        {{ tz.city }}
+                        {{ tzCity(tz) }}
                       </div>
                       <div class="text-xs text-muted truncate">
-                        {{ tz.country }}
+                        {{ tzCountry(tz) }}
                       </div>
                     </div>
                     <span class="text-xs font-mono text-muted shrink-0">{{ getUtcOffset(tz.timezone) }}</span>
@@ -408,7 +413,7 @@ async function copyTime(tz: TimezoneEntry) {
                           <span class="text-2xl leading-none">{{ tz.flag }}</span>
                           <div class="min-w-0">
                             <div class="flex items-center gap-1.5 flex-wrap">
-                              <span class="font-semibold text-sm truncate">{{ tz.city }}</span>
+                              <span class="font-semibold text-sm truncate">{{ tzCity(tz) }}</span>
                               <span
                                 v-if="tz.timezone === 'UTC'"
                                 class="text-[10px] font-medium px-1 py-0.5 rounded bg-primary/20 text-primary uppercase tracking-wide leading-none shrink-0"
@@ -417,7 +422,7 @@ async function copyTime(tz: TimezoneEntry) {
                               </span>
                             </div>
                             <div class="text-xs text-muted truncate">
-                              {{ tz.country }}
+                              {{ tzCountry(tz) }}
                             </div>
                           </div>
                         </div>
