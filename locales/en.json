@@ -182,5 +182,22 @@
   "hashPlaceholder": "Enter text to hash...",
   "Case Converter": "Case Converter",
   "Convert text between camelCase, snake_case, kebab-case and more": "Convert text between camelCase, snake_case, kebab-case and more",
-  "caseConverterPlaceholder": "Enter text to convert..."
+  "caseConverterPlaceholder": "Enter text to convert...",
+  "Timezone Scheduler": "Timezone Scheduler",
+  "Compare times across countries and timezones worldwide": "Compare times across countries and timezones worldwide",
+  "timezoneSearchPlaceholder": "Search country or city...",
+  "timezoneNoResults": "No timezones found",
+  "timezoneEmptyState": "Select timezones from the list to compare",
+  "timezoneLive": "Live",
+  "timezonePaused": "Paused",
+  "timezoneResumeLive": "Resume live",
+  "timezoneEditHint": "Click on a time to edit",
+  "timezoneClickToEdit": "Click to set time",
+  "timezoneReference": "Reference",
+  "Americas": "Americas",
+  "Europe": "Europe",
+  "Asia": "Asia",
+  "Africa": "Africa",
+  "Oceania": "Oceania",
+  "Global": "Global"
 }

@@ -134,6 +134,14 @@ export const useTools = () => {
       icon: 'i-lucide-file-text',
       category: 'utilities',
       to: '/invoice-generator'
+    },
+    {
+      id: 'timezone-scheduler',
+      label: t('Timezone Scheduler'),
+      description: t('Compare times across countries and timezones worldwide'),
+      icon: 'i-lucide-globe',
+      category: 'utilities',
+      to: '/timezone-scheduler'
     }
   ])
 
