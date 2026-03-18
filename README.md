@@ -58,3 +58,14 @@ pnpm preview
 ```
 
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+
+---
+
+### ❤️ Sponsors & Backers
+
+<a href="https://github.com/sponsors/enzonotario">
+  <img src="https://raw.githubusercontent.com/enzonotario/enzonotario/main/sponsors.png" alt="Sponsors & Backers" />
+</a>
+
+> [Become a sponsor](https://github.com/sponsors/enzonotario)
+
