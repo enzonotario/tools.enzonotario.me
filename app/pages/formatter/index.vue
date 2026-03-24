@@ -3,6 +3,7 @@ import JsonFormatter from '~/components/json-xml-formatter/JsonFormatter.vue'
 import XmlFormatter from '~/components/json-xml-formatter/XmlFormatter.vue'
 import CodeHighlight from '~/components/json-xml-formatter/CodeHighlight.vue'
 import MultiFormatOutput from '~/components/json-xml-formatter/MultiFormatOutput.vue'
+import JsonTable from '~/components/json-xml-formatter/JsonTable.vue'
 import { toXML } from 'jstoxml'
 import xml2json from '@hendt/xml2json'
 import yaml from 'js-yaml'
@@ -32,6 +33,7 @@ const isManualSelection = ref(false)
 const detectedFormat = ref<FormatType>('json')
 const useFracturedJson = ref(true)
 const parsedJsonObjects = ref<unknown[]>([])
+const viewMode = ref<'formatted' | 'table'>('formatted')
 
 const detectFormat = (content: string): FormatType => {
   if (!content.trim()) {
@@ -99,6 +101,12 @@ watch(currentType, (newType) => {
     outputFormat.value = newType
   }
 }, { immediate: true })
+
+watch(outputFormat, (fmt) => {
+  if (fmt !== 'json') {
+    viewMode.value = 'formatted'
+  }
+})
 
 const convertToJson = async (content: string, fromFormat: FormatType): Promise<unknown> => {
   switch (fromFormat) {
@@ -301,6 +309,22 @@ watch(inputFormat, async (newFormat, oldFormat) => {
   }
 })
 
+const tableJsonData = computed<unknown[]>(() => {
+  if (outputFormat.value !== 'json') return []
+  if (outputFormat.value === currentType.value) {
+    return parsedJsonObjects.value
+  }
+  // After conversion, parse the converted output
+  if (!finalOutput.value) return []
+  try {
+    return [JSON.parse(finalOutput.value)]
+  } catch {
+    return []
+  }
+})
+
+const canShowTable = computed(() => outputFormat.value === 'json' && tableJsonData.value.length > 0)
+
 const handleShare = () => {
   share({
     input: input.value,
@@ -475,69 +499,99 @@ onMounted(() => {
                 >
                   <USwitch v-model="useFracturedJson" />
                 </UFormField>
+
+                <UButtonGroup
+                  v-if="canShowTable"
+                  size="sm"
+                >
+                  <UButton
+                    :variant="viewMode === 'formatted' ? 'solid' : 'outline'"
+                    color="neutral"
+                    icon="i-lucide-code"
+                    @click="viewMode = 'formatted'"
+                  >
+                    {{ $t('Formatted') }}
+                  </UButton>
+                  <UButton
+                    :variant="viewMode === 'table' ? 'solid' : 'outline'"
+                    color="neutral"
+                    icon="i-lucide-table"
+                    @click="viewMode = 'table'"
+                  >
+                    {{ $t('Table') }}
+                  </UButton>
+                </UButtonGroup>
               </div>
             </div>
             <div class="flex-1 flex flex-col min-h-0">
               <div
-                v-if="isMinified"
+                v-if="viewMode === 'table' && canShowTable"
                 class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
               >
-                <CodeHighlight
-                  :code="finalOutput"
-                  :language="outputFormat"
-                  :word-wrap="true"
-                />
+                <JsonTable :data="tableJsonData" />
               </div>
               <template v-else>
-                <template v-if="outputFormat === currentType">
-                  <JsonFormatter
-                    v-if="outputFormat === 'json'"
-                    :input="input"
-                    :sort-keys="sortKeys"
-                    :use-fractured="useFracturedJson"
-                    @update:output="handleOutputUpdate"
-                    @update:error="handleErrorUpdate"
+                <div
+                  v-if="isMinified"
+                  class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                >
+                  <CodeHighlight
+                    :code="finalOutput"
+                    :language="outputFormat"
+                    :word-wrap="true"
                   />
-                  <XmlFormatter
-                    v-else-if="outputFormat === 'xml'"
-                    :input="input"
-                    @update:output="handleOutputUpdate"
-                    @update:error="handleErrorUpdate"
-                  />
+                </div>
+                <template v-else>
+                  <template v-if="outputFormat === currentType">
+                    <JsonFormatter
+                      v-if="outputFormat === 'json'"
+                      :input="input"
+                      :sort-keys="sortKeys"
+                      :use-fractured="useFracturedJson"
+                      @update:output="handleOutputUpdate"
+                      @update:error="handleErrorUpdate"
+                    />
+                    <XmlFormatter
+                      v-else-if="outputFormat === 'xml'"
+                      :input="input"
+                      @update:output="handleOutputUpdate"
+                      @update:error="handleErrorUpdate"
+                    />
+                    <div
+                      v-else
+                      class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                    >
+                      <CodeHighlight
+                        :code="input"
+                        :language="outputFormat"
+                      />
+                    </div>
+                  </template>
+                  <template v-else-if="convertedOutputList.length > 0">
+                    <JsonFormatter
+                      v-if="outputFormat === 'json'"
+                      :input="finalOutput"
+                      :sort-keys="sortKeys"
+                      :use-fractured="useFracturedJson"
+                      @update:output="() => {}"
+                      @update:error="() => {}"
+                    />
+                    <MultiFormatOutput
+                      v-else
+                      :outputs="convertedOutputList"
+                      :format="outputFormat"
+                      :label="outputFormat.toUpperCase()"
+                    />
+                  </template>
                   <div
                     v-else
-                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800 items-center justify-center"
                   >
-                    <CodeHighlight
-                      :code="input"
-                      :language="outputFormat"
-                    />
+                    <p class="text-muted text-sm">
+                      {{ $t('Paste your content here to get started') }}
+                    </p>
                   </div>
                 </template>
-                <template v-else-if="convertedOutputList.length > 0">
-                  <JsonFormatter
-                    v-if="outputFormat === 'json'"
-                    :input="finalOutput"
-                    :sort-keys="sortKeys"
-                    :use-fractured="useFracturedJson"
-                    @update:output="() => {}"
-                    @update:error="() => {}"
-                  />
-                  <MultiFormatOutput
-                    v-else
-                    :outputs="convertedOutputList"
-                    :format="outputFormat"
-                    :label="outputFormat.toUpperCase()"
-                  />
-                </template>
-                <div
-                  v-else
-                  class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800 items-center justify-center"
-                >
-                  <p class="text-muted text-sm">
-                    {{ $t('Paste your content here to get started') }}
-                  </p>
-                </div>
               </template>
             </div>
           </div>
