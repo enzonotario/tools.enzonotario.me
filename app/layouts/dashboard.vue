@@ -9,8 +9,12 @@ const route = useRoute()
 const isSidebarCollapsed = ref(false)
 
 defineShortcuts({
-  meta_slash: () => {
-    isSidebarCollapsed.value = !isSidebarCollapsed.value
+  'meta_/': {
+    usingInput: true,
+    handler: () => {
+      isSidebarCollapsed.value = !isSidebarCollapsed.value
+      console.log(!isSidebarCollapsed.value)
+    }
   }
 })
 
