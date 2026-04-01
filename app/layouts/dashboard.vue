@@ -6,6 +6,13 @@ const switchLocalePath = useSwitchLocalePath()
 const localePath = useLocalePath()
 const { tools, categories } = useTools()
 const route = useRoute()
+const isSidebarCollapsed = ref(false)
+
+defineShortcuts({
+  meta_slash: () => {
+    isSidebarCollapsed.value = !isSidebarCollapsed.value
+  }
+})
 
 const navigationItems = computed<NavigationMenuItem[][]>(() => {
   const items: NavigationMenuItem[] = []
@@ -49,6 +56,7 @@ const searchGroups = computed(() => {
 <template>
   <UDashboardGroup>
     <UDashboardSidebar
+      v-model:collapsed="isSidebarCollapsed"
       collapsible
       resizable
     >
