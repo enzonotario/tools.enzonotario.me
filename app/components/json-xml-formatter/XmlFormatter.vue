@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { PrettyXml } from 'pretty-xml-vue3'
-import 'pretty-xml-vue3/style.css'
+import { DataVisor } from 'data-visor-vue'
 
 interface Props {
   input: string
@@ -12,6 +11,9 @@ const emit = defineEmits<{
   'update:output': [value: string]
   'update:error': [value: string | null]
 }>()
+
+const colorMode = useColorMode()
+const isVisorDark = computed(() => colorMode.value === 'dark')
 
 const error = ref<string | null>(null)
 const formattedXml = ref<string>('')
@@ -42,7 +44,6 @@ const parseXml = () => {
       throw new Error(errorText)
     }
 
-    // Use the input directly - PrettyXml will format it
     formattedXml.value = trimmed
     emit('update:output', trimmed)
     emit('update:error', null)
@@ -65,7 +66,7 @@ watch(() => props.input, () => {
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+  <div class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
     <div
       v-if="!formattedXml && !error"
       class="text-muted text-sm flex items-center justify-center h-full"
@@ -86,25 +87,12 @@ watch(() => props.input, () => {
         </p>
       </div>
     </div>
-    <ClientOnly>
-      <PrettyXml
-        v-if="formattedXml && !error"
-        :xml="formattedXml"
-        :options="{ shortRecord: true }"
-        class="xml-viewer"
-      />
-      <template #fallback>
-        <div class="text-muted text-sm flex items-center justify-center h-full">
-          {{ $t('Loading XML viewer...') }}
-        </div>
-      </template>
-    </ClientOnly>
+    <DataVisor
+      v-if="formattedXml && !error"
+      :data="formattedXml"
+      lang="xml"
+      :is-dark="isVisorDark"
+      class="min-h-full"
+    />
   </div>
 </template>
-
-<style scoped>
-.xml-viewer {
-  width: 100%;
-  overflow: auto;
-}
-</style>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { DataVisor } from 'data-visor-vue'
+import type { ViewerLang } from 'data-visor-vue'
 import JsonFormatter from '~/components/json-xml-formatter/JsonFormatter.vue'
 import XmlFormatter from '~/components/json-xml-formatter/XmlFormatter.vue'
 import CodeHighlight from '~/components/json-xml-formatter/CodeHighlight.vue'
@@ -27,6 +29,15 @@ const output = ref('')
 const error = ref<string | null>(null)
 const sortKeys = ref(false)
 const outputFormat = ref<FormatType>('json')
+const colorMode = useColorMode()
+const isVisorDark = computed(() => colorMode.value === 'dark')
+const outputVisorLang = computed((): ViewerLang | null => {
+  const f = outputFormat.value
+  if (f === 'toml') {
+    return null
+  }
+  return f
+})
 const isMinified = ref(false)
 const inputFormat = ref<InputFormatType>('auto-detect')
 const isManualSelection = ref(false)
@@ -533,9 +544,17 @@ onMounted(() => {
               <template v-else>
                 <div
                   v-if="isMinified"
-                  class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                  class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800 overflow-auto"
                 >
+                  <DataVisor
+                    v-if="outputVisorLang"
+                    :data="finalOutput"
+                    :lang="outputVisorLang"
+                    :is-dark="isVisorDark"
+                    class="min-h-full"
+                  />
                   <CodeHighlight
+                    v-else
                     :code="finalOutput"
                     :language="outputFormat"
                     :word-wrap="true"
@@ -557,6 +576,17 @@ onMounted(() => {
                       @update:output="handleOutputUpdate"
                       @update:error="handleErrorUpdate"
                     />
+                    <div
+                      v-else-if="outputFormat === 'yaml'"
+                      class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                    >
+                      <DataVisor
+                        :data="input"
+                        lang="yaml"
+                        :is-dark="isVisorDark"
+                        class="min-h-full"
+                      />
+                    </div>
                     <div
                       v-else
                       class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
