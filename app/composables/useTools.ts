@@ -112,6 +112,14 @@ export const useTools = () => {
       to: '/markdown-preview'
     },
     {
+      id: 'mermaid-preview',
+      label: t('Mermaid Preview'),
+      description: t('Preview Mermaid diagrams with beautiful SVG or ASCII rendering'),
+      icon: 'i-lucide-git-branch',
+      category: 'design',
+      to: '/mermaid-preview'
+    },
+    {
       id: 'password-generator',
       label: t('Password Generator'),
       description: t('Generate secure, random passwords with customizable options'),

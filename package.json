@@ -34,6 +34,7 @@
     "pinia": "^3.0.4",
     "shiki": "^4.0.2",
     "smol-toml": "^1.6.0",
+    "v-beautiful-mermaid": "^0.0.3",
     "v-code-diff": "^1.13.1"
   },
   "devDependencies": {
