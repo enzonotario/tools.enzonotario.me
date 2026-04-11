@@ -1,4 +1,8 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { fileURLToPath } from 'node:url'
+
+const vBeautifulMermaidCss = fileURLToPath(new URL('./node_modules/v-beautiful-mermaid/dist/client.css', import.meta.url))
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -7,12 +11,13 @@ export default defineNuxtConfig({
     '@nuxtjs/i18n',
     'nuxt-gtag'
   ],
+  ssr: false,
 
   devtools: {
     enabled: true
   },
 
-  css: ['~/assets/css/main.css', 'v-beautiful-mermaid/style.css'],
+  css: ['~/assets/css/main.css', vBeautifulMermaidCss],
 
   ui: {
     theme: {

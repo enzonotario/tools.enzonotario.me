@@ -71,8 +71,11 @@ const copySource = async () => {
 
 <template>
   <div class="w-full h-full split-pane-wrapper">
-    <ClientOnly>
-      <Teleport to="#header-actions-portal">
+    <div class="flex h-full min-h-0 flex-col">
+      <Teleport
+        defer
+        to="#header-actions-portal"
+      >
         <div class="flex flex-wrap items-center gap-2">
           <USelectMenu
             v-model="previewMode"
@@ -117,7 +120,7 @@ const copySource = async () => {
         :min-percent="20"
         :default-percent="50"
         storage-key="mermaid-preview"
-        class="h-full"
+        class="min-h-0 flex-1"
       >
         <template #paneL>
           <div class="flex flex-col h-full p-1">
@@ -157,16 +160,7 @@ const copySource = async () => {
           </div>
         </template>
       </SplitPane>
-
-      <template #fallback>
-        <div class="flex items-center justify-center h-full">
-          <UIcon
-            name="i-lucide-loader-2"
-            class="animate-spin size-8 text-primary-500"
-          />
-        </div>
-      </template>
-    </ClientOnly>
+    </div>
   </div>
 </template>
 
