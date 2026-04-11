@@ -1,0 +1,287 @@
+/* Enhanced styles for vue-json-pretty with modern, neutral color scheme */
+
+/* Light theme colors - improved contrast */
+:root {
+  --vjs-brackets-hover: hsl(220, 70%, 45%);
+  --vjs-checkbox-bg: hsl(220, 70%, 45%);
+  --vjs-checkbox-border: hsl(220, 60%, 40%);
+  --vjs-checkbox-border-default: hsl(220, 15%, 65%);
+  --vjs-caret-hover: hsl(220, 70%, 45%);
+  --vjs-node-hover-bg: hsl(220, 40%, 96%);
+  --vjs-node-actions-bg: hsl(220, 40%, 96%);
+  --vjs-node-actions-hover: hsl(220, 70%, 45%);
+  --vjs-indent-line: hsl(220, 15%, 80%);
+  --vjs-comment: hsl(220, 10%, 45%);
+  --vjs-value-null: hsl(300, 55%, 50%);
+  --vjs-value-boolean: hsl(220, 70%, 45%);
+  --vjs-value-number: hsl(220, 70%, 45%);
+  --vjs-value-string: hsl(142, 60%, 35%);
+}
+
+/* Dark theme colors */
+.dark {
+  --vjs-brackets-hover: hsl(220, 70%, 65%);
+  --vjs-checkbox-bg: hsl(220, 70%, 60%);
+  --vjs-checkbox-border: hsl(220, 70%, 55%);
+  --vjs-checkbox-border-default: hsl(220, 15%, 45%);
+  --vjs-caret-hover: hsl(220, 70%, 65%);
+  --vjs-node-hover-bg: hsl(220, 20%, 20%);
+  --vjs-node-actions-bg: hsl(220, 20%, 20%);
+  --vjs-node-actions-hover: hsl(220, 70%, 65%);
+  --vjs-indent-line: hsl(220, 15%, 35%);
+  --vjs-comment: hsl(220, 10%, 60%);
+  --vjs-value-null: hsl(300, 45%, 70%);
+  --vjs-value-boolean: hsl(220, 70%, 65%);
+  --vjs-value-number: hsl(220, 70%, 65%);
+  --vjs-value-string: hsl(142, 50%, 60%);
+}
+
+/* Brackets - more subtle hover effect */
+.vjs-tree-brackets {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.vjs-tree-brackets:hover {
+  color: var(--vjs-brackets-hover);
+}
+
+/* Checkbox controller - modern styling */
+.vjs-check-controller {
+  position: absolute;
+  left: 0;
+}
+
+.vjs-check-controller.is-checked .vjs-check-controller-inner {
+  background-color: var(--vjs-checkbox-bg);
+  border-color: var(--vjs-checkbox-border);
+}
+
+.vjs-check-controller.is-checked .vjs-check-controller-inner.is-checkbox:after {
+  transform: rotate(45deg) scaleY(1);
+}
+
+.vjs-check-controller.is-checked .vjs-check-controller-inner.is-radio:after {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.vjs-check-controller .vjs-check-controller-inner {
+  display: inline-block;
+  position: relative;
+  border: 1.5px solid var(--vjs-checkbox-border-default);
+  border-radius: 4px;
+  vertical-align: middle;
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  background-color: transparent;
+  z-index: 1;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+}
+
+.vjs-check-controller .vjs-check-controller-inner:hover {
+  border-color: var(--vjs-checkbox-border);
+  transform: scale(1.05);
+}
+
+.vjs-check-controller .vjs-check-controller-inner:after {
+  box-sizing: content-box;
+  content: "";
+  border: 2px solid white;
+  border-left: 0;
+  border-top: 0;
+  height: 8px;
+  left: 4px;
+  position: absolute;
+  top: 1px;
+  transform: rotate(45deg) scaleY(0);
+  width: 4px;
+  transition: transform 0.15s cubic-bezier(0.71, -0.46, 0.88, 0.6) 0.05s;
+  transform-origin: center;
+}
+
+.vjs-check-controller .vjs-check-controller-inner.is-radio {
+  border-radius: 100%;
+}
+
+.vjs-check-controller .vjs-check-controller-inner.is-radio:after {
+  border-radius: 100%;
+  height: 4px;
+  background-color: white;
+  left: 50%;
+  top: 50%;
+  border: none;
+}
+
+.vjs-check-controller .vjs-check-controller-original {
+  opacity: 0;
+  outline: none;
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+}
+
+/* Carets - smoother animation */
+.vjs-carets {
+  position: absolute;
+  right: 0;
+  cursor: pointer;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.vjs-carets svg {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.vjs-carets:hover {
+  color: var(--vjs-caret-hover);
+}
+
+.vjs-carets-close {
+  transform: rotate(-90deg);
+}
+
+/* Tree node - improved hover states */
+.vjs-tree-node {
+  display: flex;
+  position: relative;
+  line-height: 18px;
+  padding: 1px 2px;
+  border-radius: 3px;
+  transition: background-color 0.15s ease;
+}
+
+.vjs-tree-node.has-carets {
+  padding-left: 15px;
+}
+
+.vjs-tree-node.has-carets.has-selector,
+.vjs-tree-node.has-selector {
+  padding-left: 30px;
+}
+
+.vjs-tree-node.is-highlight,
+.vjs-tree-node:hover {
+  background-color: var(--vjs-node-hover-bg);
+}
+
+.vjs-tree-node.is-highlight .vjs-tree-node-actions,
+.vjs-tree-node:hover .vjs-tree-node-actions {
+  display: block;
+}
+
+.vjs-tree-node .vjs-indent {
+  display: flex;
+  position: relative;
+}
+
+.vjs-tree-node .vjs-indent-unit.has-line {
+  border-left: 1px dashed var(--vjs-indent-line);
+  opacity: 0.6;
+}
+
+.vjs-tree-node .vjs-tree-node-actions {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0 2px;
+  background-color: var(--vjs-node-actions-bg);
+  border-radius: 3px;
+}
+
+.vjs-tree-node .vjs-tree-node-actions .vjs-tree-node-actions-item {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.vjs-tree-node .vjs-tree-node-actions .vjs-tree-node-actions-item:hover {
+  color: var(--vjs-node-actions-hover);
+}
+
+/* Dark theme specific adjustments */
+.vjs-tree-node.dark.is-highlight,
+.vjs-tree-node.dark .vjs-tree-node-actions,
+.vjs-tree-node.dark:hover {
+  background-color: var(--vjs-node-hover-bg);
+}
+
+.vjs-node-index {
+  position: absolute;
+  right: 100%;
+  margin-right: 2px;
+  user-select: none;
+  opacity: 0.5;
+  font-size: 0.85em;
+}
+
+.vjs-colon {
+  white-space: pre;
+  opacity: 0.6;
+}
+
+.vjs-comment {
+  color: var(--vjs-comment);
+  font-style: italic;
+}
+
+.vjs-key {
+  white-space: nowrap;
+  font-weight: 500;
+  color: inherit;
+}
+
+.vjs-value {
+  word-break: break-word;
+}
+
+.vjs-tree-node.dynamic-height .vjs-value {
+  white-space: pre-wrap;
+}
+
+/* Value colors - modern palette */
+.vjs-value-null,
+.vjs-value-undefined {
+  color: var(--vjs-value-null);
+  font-weight: 500;
+}
+
+.vjs-value-boolean,
+.vjs-value-number {
+  color: var(--vjs-value-boolean);
+  font-weight: 500;
+}
+
+.vjs-value-string {
+  color: var(--vjs-value-string);
+}
+
+/* Tree container */
+.vjs-tree {
+  font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', 'Bitstream Vera Sans Mono', 'Courier New', monospace;
+  font-size: 13px;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.vjs-tree.is-virtual {
+  overflow: auto;
+}
+
+.vjs-tree.is-virtual .vjs-tree-node {
+  white-space: nowrap;
+}
+
+/* Smooth transitions for all interactive elements */
+.vjs-tree-node,
+.vjs-tree-brackets,
+.vjs-carets,
+.vjs-check-controller .vjs-check-controller-inner {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+

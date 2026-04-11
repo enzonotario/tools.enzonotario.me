@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { DataVisor } from 'data-visor-vue'
+import VueJsonPretty from 'vue-json-pretty'
+import 'vue-json-pretty/lib/styles.css'
+import '~/assets/css/vue-json-pretty-enhanced.css'
 import { Formatter } from 'fracturedjsonjs'
 import { parseJSON } from 'graceful-json'
 import CodeHighlight from './CodeHighlight.vue'
@@ -26,7 +28,9 @@ const colorMode = useColorMode()
 const parsedJsonList = ref<unknown[]>([])
 const error = ref<string | null>(null)
 
-const isJsonViewerDark = computed(() => colorMode.value === 'dark')
+const jsonTheme = computed(() => {
+  return colorMode.value === 'dark' ? 'dark' : 'light'
+})
 
 const parseJson = () => {
   error.value = null
@@ -93,9 +97,9 @@ const sortedJsonList = computed(() => {
   return parsedJsonList.value.map(sortObjectKeys)
 })
 
-const prettyJsonStrings = computed(() =>
-  sortedJsonList.value.map(json => JSON.stringify(json, null, 2))
-)
+const formattedDataList = computed(() => {
+  return sortedJsonList.value as (string | number | boolean | unknown[] | Record<string, unknown> | null)[]
+})
 
 const fracturedOutputList = computed((): string[] => {
   if (!props.useFractured) {
@@ -148,7 +152,6 @@ watch(() => props.useFractured, () => {
         v-for="(json, index) in sortedJsonList"
         :key="index"
         :class="{ 'border-t border-gray-200 dark:border-gray-700': index > 0 }"
-        class="flex-1"
       >
         <div
           v-if="sortedJsonList.length > 1"
@@ -161,12 +164,12 @@ watch(() => props.useFractured, () => {
           :code="fracturedOutputList[index] ?? ''"
           language="json"
         />
-        <DataVisor
+        <VueJsonPretty
           v-else
-          :data="prettyJsonStrings[index] ?? ''"
-          lang="json"
-          :is-dark="isJsonViewerDark"
-          class="min-h-full"
+          :data="formattedDataList[index]"
+          :deep="10"
+          :theme="jsonTheme"
+          class="p-4"
         />
       </div>
     </template>

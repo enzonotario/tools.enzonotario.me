@@ -12,7 +12,7 @@ export default defineNuxtConfig({
     enabled: true
   },
 
-  css: ['~/assets/css/main.css', 'data-visor-vue/style.css', 'v-beautiful-mermaid/style.css'],
+  css: ['~/assets/css/main.css', 'v-beautiful-mermaid/style.css'],
 
   ui: {
     theme: {
