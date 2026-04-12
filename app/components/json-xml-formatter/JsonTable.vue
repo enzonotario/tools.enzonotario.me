@@ -1,9 +1,14 @@
 <script setup lang="ts">
+import { DataVisor } from 'data-visor-vue'
+
 interface Props {
   data: unknown[]
 }
 
 const props = defineProps<Props>()
+
+const colorMode = useColorMode()
+const isVisorDark = computed(() => colorMode.value === 'dark')
 
 type Row = Record<string, unknown>
 
@@ -47,12 +52,7 @@ const tableData = computed(() => {
   }
 })
 
-const formatCell = (value: unknown): string => {
-  if (value === null) return 'null'
-  if (value === undefined) return ''
-  if (typeof value === 'object') return JSON.stringify(value)
-  return String(value)
-}
+const jsonForVisor = (value: unknown): string => JSON.stringify(value, null, 2)
 
 const isComplex = (value: unknown): boolean =>
   value !== null && typeof value === 'object'
@@ -92,12 +92,23 @@ const isComplex = (value: unknown): boolean =>
             :key="col"
             class="px-3 py-2 align-top"
           >
-            <span
+            <div
               v-if="isComplex(row[col])"
-              class="font-mono text-xs text-gray-500 dark:text-gray-400"
+              class="w-full min-w-0 max-h-96 overflow-auto rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/40"
             >
-              {{ formatCell(row[col]) }}
-            </span>
+              <DataVisorHost compact>
+                <DataVisor
+                  :data="jsonForVisor(row[col])"
+                  lang="json"
+                  :is-dark="isVisorDark"
+                  :show-line-numbers="false"
+                  :show-toolbar="false"
+                  :show-breadcrumb="false"
+                  max-height="max-content"
+                  class="text-sm"
+                />
+              </DataVisorHost>
+            </div>
             <span
               v-else-if="row[col] === null"
               class="text-gray-400 dark:text-gray-500 italic text-xs"
