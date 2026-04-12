@@ -42,6 +42,7 @@
     "@types/js-yaml": "^4.0.9",
     "@types/lz-string": "^1.5.0",
     "@types/markdown-it": "^14.1.2",
+    "@types/node": "^25.6.0",
     "eslint": "^10.0.3",
     "postcss": "^8.5.9",
     "postcss-prefix-selector": "^2.1.1",

@@ -100,7 +100,7 @@ const getCurrencyName = (code: string) => {
       ARS: 'Pesos Argentinos'
     }
   }
-  return currencyNames[language.value]?.[code] ?? currencyNames.en[code] ?? code
+  return currencyNames[language.value]?.[code] ?? currencyNames.en?.[code] ?? code
 }
 
 const getCurrencySymbol = (code: string) => {

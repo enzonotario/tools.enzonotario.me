@@ -11,6 +11,8 @@ const colorMode = useColorMode()
 const isVisorDark = computed(() => colorMode.value === 'dark')
 
 type Row = Record<string, unknown>
+type KeyValueRow = { key: string, value: unknown }
+type IndexValueRow = { index: number, value: unknown }
 
 const tableData = computed(() => {
   if (props.data.length === 0) return null
@@ -56,6 +58,10 @@ const jsonForVisor = (value: unknown): string => JSON.stringify(value, null, 2)
 
 const isComplex = (value: unknown): boolean =>
   value !== null && typeof value === 'object'
+
+function cellAt(row: Row | KeyValueRow | IndexValueRow, col: string): unknown {
+  return (row as Record<string, unknown>)[col]
+}
 </script>
 
 <template>
@@ -93,12 +99,12 @@ const isComplex = (value: unknown): boolean =>
             class="px-3 py-2 align-top"
           >
             <div
-              v-if="isComplex(row[col])"
+              v-if="isComplex(cellAt(row, col))"
               class="w-full min-w-0 max-h-96 overflow-auto rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-900/40"
             >
               <DataVisorHost compact>
                 <DataVisor
-                  :data="jsonForVisor(row[col])"
+                  :data="jsonForVisor(cellAt(row, col))"
                   lang="json"
                   :is-dark="isVisorDark"
                   :show-line-numbers="false"
@@ -110,23 +116,23 @@ const isComplex = (value: unknown): boolean =>
               </DataVisorHost>
             </div>
             <span
-              v-else-if="row[col] === null"
+              v-else-if="cellAt(row, col) === null"
               class="text-gray-400 dark:text-gray-500 italic text-xs"
             >null</span>
             <span
-              v-else-if="typeof row[col] === 'boolean'"
-              :class="row[col] ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
+              v-else-if="typeof cellAt(row, col) === 'boolean'"
+              :class="cellAt(row, col) ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'"
               class="font-mono text-xs"
             >
-              {{ row[col] }}
+              {{ cellAt(row, col) }}
             </span>
             <span
-              v-else-if="typeof row[col] === 'number'"
+              v-else-if="typeof cellAt(row, col) === 'number'"
               class="font-mono text-xs text-blue-600 dark:text-blue-400"
             >
-              {{ row[col] }}
+              {{ cellAt(row, col) }}
             </span>
-            <span v-else>{{ row[col] }}</span>
+            <span v-else>{{ cellAt(row, col) }}</span>
           </td>
         </tr>
       </tbody>

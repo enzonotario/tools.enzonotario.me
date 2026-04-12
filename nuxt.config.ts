@@ -39,6 +39,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-15',
 
   vite: {
+    // @ts-expect-error Vite/Rollup types diverge under pnpm; plugin is valid at runtime
     plugins: [scopeDataVisorVite()],
     ssr: {
       noExternal: [

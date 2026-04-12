@@ -11,7 +11,9 @@ function splitWords(s: string): string[] {
 export function toCamel(s: string): string {
   const words = splitWords(s)
   if (words.length === 0) return s
-  return words[0].toLowerCase() + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('')
+  const first = words[0]
+  if (first === undefined) return s
+  return first.toLowerCase() + words.slice(1).map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('')
 }
 
 export function toPascal(s: string): string {

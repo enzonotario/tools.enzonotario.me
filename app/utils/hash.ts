@@ -1,4 +1,4 @@
-import md5 from 'js-md5'
+import { md5 } from 'js-md5'
 
 async function sha(algorithm: 'SHA-1' | 'SHA-256' | 'SHA-512', data: string): Promise<string> {
   const buffer = new TextEncoder().encode(data)

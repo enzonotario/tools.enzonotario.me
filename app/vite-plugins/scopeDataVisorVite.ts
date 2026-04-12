@@ -1,3 +1,5 @@
+/* eslint-disable-next-line @typescript-eslint/triple-slash-reference -- tsconfig.node no incluye types/; el .d.ts debe enlazarse explícitamente */
+/// <reference path="../../types/postcss-prefix-selector.d.ts" />
 import type { Plugin } from 'vite'
 import postcss from 'postcss'
 import postcssPrefixSelector from 'postcss-prefix-selector'
@@ -5,7 +7,7 @@ import postcssPrefixSelector from 'postcss-prefix-selector'
 const prefixDataVisorSelectors = postcssPrefixSelector({
   prefix: '.dv-unocss-host',
   skipGlobalSelectors: true,
-  transform(_prefix, selector, prefixedSelector) {
+  transform(_prefix: string, selector: string, prefixedSelector: string) {
     const s = selector.trim()
     if (s.startsWith('.dv-unocss-host')) {
       return selector
@@ -25,13 +27,13 @@ export function scopeDataVisorVite(): Plugin {
     enforce: 'pre',
     async transform(code, id) {
       if (!isDataVisorBundleStyle(id)) {
-        return null
+        return undefined
       }
       if (code.includes('.dv-unocss-host .pointer-events-auto')) {
-        return null
+        return undefined
       }
       const result = await postcss([prefixDataVisorSelectors]).process(code, { from: id })
-      return { code: result.css, map: result.map }
+      return { code: result.css }
     }
   }
 }
