@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { DataVisor, type ViewerLang } from 'data-visor-vue'
 import CodeHighlight from './CodeHighlight.vue'
 
 interface Props {
@@ -7,8 +8,18 @@ interface Props {
   label?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   label: 'Output'
+})
+
+const colorMode = useColorMode()
+const isVisorDark = computed(() => colorMode.value === 'dark')
+
+const visorLang = computed((): ViewerLang | null => {
+  if (props.format === 'toml') {
+    return null
+  }
+  return props.format
 })
 </script>
 
@@ -24,6 +35,7 @@ withDefaults(defineProps<Props>(), {
       <div
         v-for="(output, index) in outputs"
         :key="index"
+        class="flex-1"
         :class="{ 'border-t border-gray-200 dark:border-gray-700': index > 0 }"
       >
         <div
@@ -32,7 +44,18 @@ withDefaults(defineProps<Props>(), {
         >
           {{ label }} {{ index + 1 }}
         </div>
+        <DataVisorHost v-if="visorLang">
+          <DataVisor
+            :data="output"
+            :lang="visorLang"
+            :is-dark="isVisorDark"
+            max-height="100%"
+            min-height="0"
+            class="h-full flex-1 min-h-0"
+          />
+        </DataVisorHost>
         <CodeHighlight
+          v-else
           :code="output"
           :language="format"
         />

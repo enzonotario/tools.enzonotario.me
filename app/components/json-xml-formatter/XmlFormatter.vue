@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { PrettyXml } from 'pretty-xml-vue3'
-import 'pretty-xml-vue3/style.css'
+import { DataVisor } from 'data-visor-vue'
 
 interface Props {
   input: string
@@ -12,6 +11,9 @@ const emit = defineEmits<{
   'update:output': [value: string]
   'update:error': [value: string | null]
 }>()
+
+const colorMode = useColorMode()
+const isVisorDark = computed(() => colorMode.value === 'dark')
 
 const error = ref<string | null>(null)
 const formattedXml = ref<string>('')
@@ -31,18 +33,15 @@ const parseXml = () => {
       throw new Error('Invalid XML: must start with <')
     }
 
-    // Try to parse with DOMParser for validation
     const parser = new DOMParser()
     const xmlDoc = parser.parseFromString(trimmed, 'text/xml')
 
-    // Check for parsing errors
     const parseError = xmlDoc.querySelector('parsererror')
     if (parseError) {
       const errorText = parseError.textContent || 'Invalid XML: parsing error'
       throw new Error(errorText)
     }
 
-    // Use the input directly - PrettyXml will format it
     formattedXml.value = trimmed
     emit('update:output', trimmed)
     emit('update:error', null)
@@ -54,7 +53,6 @@ const parseXml = () => {
   }
 }
 
-// Auto-parse on input change with debounce
 let parseTimeout: ReturnType<typeof setTimeout>
 watch(() => props.input, () => {
   clearTimeout(parseTimeout)
@@ -65,7 +63,7 @@ watch(() => props.input, () => {
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800">
+  <div class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800">
     <div
       v-if="!formattedXml && !error"
       class="text-muted text-sm flex items-center justify-center h-full"
@@ -86,25 +84,16 @@ watch(() => props.input, () => {
         </p>
       </div>
     </div>
-    <ClientOnly>
-      <PrettyXml
+    <DataVisorHost>
+      <DataVisor
         v-if="formattedXml && !error"
-        :xml="formattedXml"
-        :options="{ shortRecord: true }"
-        class="xml-viewer"
+        :data="formattedXml"
+        lang="xml"
+        :is-dark="isVisorDark"
+        max-height="100%"
+        min-height="0"
+        class="h-full flex-1 min-h-0"
       />
-      <template #fallback>
-        <div class="text-muted text-sm flex items-center justify-center h-full">
-          {{ $t('Loading XML viewer...') }}
-        </div>
-      </template>
-    </ClientOnly>
+    </DataVisorHost>
   </div>
 </template>
-
-<style scoped>
-.xml-viewer {
-  width: 100%;
-  overflow: auto;
-}
-</style>

@@ -9,6 +9,8 @@ import xml2json from '@hendt/xml2json'
 import yaml from 'js-yaml'
 import * as TOML from 'smol-toml'
 import { parseJSON } from 'graceful-json'
+import { DataVisor, type ViewerDisplayMode } from 'data-visor-vue'
+import { serializeJsonForViewerMode, sortObjectKeysDeep } from '~/utils/jsonViewerSerialize'
 
 type FormatType = 'json' | 'xml' | 'yaml' | 'toml'
 type InputFormatType = FormatType | 'auto-detect'
@@ -22,16 +24,19 @@ definePageMeta({
   layout: 'dashboard'
 })
 
+useDataVisorStyles()
+
 const input = ref('')
 const output = ref('')
 const error = ref<string | null>(null)
 const sortKeys = ref(false)
 const outputFormat = ref<FormatType>('json')
-const isMinified = ref(false)
+const colorMode = useColorMode()
+const isVisorDark = computed(() => colorMode.value === 'dark')
 const inputFormat = ref<InputFormatType>('auto-detect')
 const isManualSelection = ref(false)
 const detectedFormat = ref<FormatType>('json')
-const useFracturedJson = ref(true)
+const jsonViewerDisplayMode = ref<ViewerDisplayMode>('tree')
 const parsedJsonObjects = ref<unknown[]>([])
 const viewMode = ref<'formatted' | 'table'>('formatted')
 
@@ -145,29 +150,6 @@ const convertFormat = async (content: string, from: FormatType, to: FormatType):
   }
 }
 
-const minifyContent = (content: string, format: FormatType): string | null => {
-  try {
-    switch (format) {
-      case 'json': {
-        const jsonObj = JSON.parse(content)
-        return JSON.stringify(jsonObj)
-      }
-      case 'xml':
-        return content.replace(/>\s+</g, '><').trim()
-      case 'yaml': {
-        const obj = yaml.load(content)
-        return yaml.dump(obj, { flowLevel: 0, lineWidth: -1 })
-      }
-      case 'toml': {
-        const obj = TOML.parse(content)
-        return TOML.stringify(obj)
-      }
-    }
-  } catch {
-    return null
-  }
-}
-
 const convertedOutput = ref<string>('')
 const convertedOutputList = ref<string[]>([])
 
@@ -213,17 +195,28 @@ const finalOutput = computed(() => {
     result = convertedOutput.value
   }
 
-  if (isMinified.value && result) {
-    const minified = minifyContent(result, outputFormat.value)
-    return minified || result
-  }
-
   return result
 })
 
 const copyToClipboard = async () => {
-  const textToCopy = finalOutput.value || output.value
+  let textToCopy = finalOutput.value || output.value
   if (!textToCopy) return
+
+  if (outputFormat.value === 'json') {
+    try {
+      const results = parseJSON(textToCopy)
+      if (results.length > 0) {
+        const mapped = sortKeys.value
+          ? results.map(sortObjectKeysDeep)
+          : results
+        textToCopy = mapped
+          .map(obj => serializeJsonForViewerMode(obj, jsonViewerDisplayMode.value))
+          .join('\n\n')
+      }
+    } catch {
+      // keep textToCopy as emitted output
+    }
+  }
 
   try {
     await navigator.clipboard.writeText(textToCopy)
@@ -331,8 +324,7 @@ const handleShare = () => {
     inputFormat: inputFormat.value,
     outputFormat: outputFormat.value,
     sortKeys: sortKeys.value,
-    isMinified: isMinified.value,
-    useFracturedJson: useFracturedJson.value
+    viewerDisplayMode: jsonViewerDisplayMode.value
   })
 }
 
@@ -345,14 +337,28 @@ onMounted(() => {
     sortKeys?: boolean
     isMinified?: boolean
     useFracturedJson?: boolean
+    viewerDisplayMode?: ViewerDisplayMode
   }>()
   if (sharedData) {
     if (sharedData.input) input.value = sharedData.input
     if (sharedData.inputFormat) inputFormat.value = sharedData.inputFormat
     if (sharedData.outputFormat) outputFormat.value = sharedData.outputFormat
     if (sharedData.sortKeys !== undefined) sortKeys.value = sharedData.sortKeys
-    if (sharedData.isMinified !== undefined) isMinified.value = sharedData.isMinified
-    if (sharedData.useFracturedJson !== undefined) useFracturedJson.value = sharedData.useFracturedJson
+    if (
+      sharedData.viewerDisplayMode === 'tree'
+      || sharedData.viewerDisplayMode === 'fractured'
+      || sharedData.viewerDisplayMode === 'minified'
+    ) {
+      jsonViewerDisplayMode.value = sharedData.viewerDisplayMode
+    } else {
+      if (sharedData.isMinified === true) {
+        jsonViewerDisplayMode.value = 'minified'
+      } else if (sharedData.useFracturedJson === true) {
+        jsonViewerDisplayMode.value = 'fractured'
+      } else if (sharedData.useFracturedJson === false) {
+        jsonViewerDisplayMode.value = 'tree'
+      }
+    }
   }
 
   if (input.value.trim() && inputFormat.value === 'auto-detect') {
@@ -473,31 +479,12 @@ onMounted(() => {
                   :disabled="!currentType"
                 />
                 <UFormField
-                  :label="$t('Minified')"
-                  orientation="horizontal"
-                  :disabled="!finalOutput && !output"
-                >
-                  <USwitch
-                    v-model="isMinified"
-                  />
-                </UFormField>
-
-                <UFormField
                   v-if="inputFormat === 'json' || outputFormat === 'json'"
                   :label="$t('Sort keys')"
                   orientation="horizontal"
                   :disabled="!finalOutput && !output"
                 >
                   <USwitch v-model="sortKeys" />
-                </UFormField>
-
-                <UFormField
-                  v-if="(inputFormat === 'json' || outputFormat === 'json') && !isMinified"
-                  :label="$t('Fractured JSON')"
-                  orientation="horizontal"
-                  :disabled="!finalOutput && !output"
-                >
-                  <USwitch v-model="useFracturedJson" />
                 </UFormField>
 
                 <UButtonGroup
@@ -531,67 +518,70 @@ onMounted(() => {
                 <JsonTable :data="tableJsonData" />
               </div>
               <template v-else>
-                <div
-                  v-if="isMinified"
-                  class="flex-1 flex flex-col min-h-0 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
-                >
-                  <CodeHighlight
-                    :code="finalOutput"
-                    :language="outputFormat"
-                    :word-wrap="true"
+                <template v-if="outputFormat === currentType">
+                  <JsonFormatter
+                    v-if="outputFormat === 'json'"
+                    v-model:display-mode="jsonViewerDisplayMode"
+                    :input="input"
+                    :sort-keys="sortKeys"
+                    @update:output="handleOutputUpdate"
+                    @update:error="handleErrorUpdate"
                   />
-                </div>
-                <template v-else>
-                  <template v-if="outputFormat === currentType">
-                    <JsonFormatter
-                      v-if="outputFormat === 'json'"
-                      :input="input"
-                      :sort-keys="sortKeys"
-                      :use-fractured="useFracturedJson"
-                      @update:output="handleOutputUpdate"
-                      @update:error="handleErrorUpdate"
-                    />
-                    <XmlFormatter
-                      v-else-if="outputFormat === 'xml'"
-                      :input="input"
-                      @update:output="handleOutputUpdate"
-                      @update:error="handleErrorUpdate"
-                    />
-                    <div
-                      v-else
-                      class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
-                    >
-                      <CodeHighlight
-                        :code="input"
-                        :language="outputFormat"
+                  <XmlFormatter
+                    v-else-if="outputFormat === 'xml'"
+                    :input="input"
+                    @update:output="handleOutputUpdate"
+                    @update:error="handleErrorUpdate"
+                  />
+                  <div
+                    v-else-if="outputFormat === 'yaml'"
+                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
+                  >
+                    <DataVisorHost>
+                      <DataVisor
+                        :data="input"
+                        lang="yaml"
+                        :is-dark="isVisorDark"
+                        max-height="100%"
+                        min-height="0"
+                        class="h-full flex-1 min-h-0"
                       />
-                    </div>
-                  </template>
-                  <template v-else-if="convertedOutputList.length > 0">
-                    <JsonFormatter
-                      v-if="outputFormat === 'json'"
-                      :input="finalOutput"
-                      :sort-keys="sortKeys"
-                      :use-fractured="useFracturedJson"
-                      @update:output="() => {}"
-                      @update:error="() => {}"
-                    />
-                    <MultiFormatOutput
-                      v-else
-                      :outputs="convertedOutputList"
-                      :format="outputFormat"
-                      :label="outputFormat.toUpperCase()"
-                    />
-                  </template>
+                    </DataVisorHost>
+                  </div>
                   <div
                     v-else
-                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800 items-center justify-center"
+                    class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-800"
                   >
-                    <p class="text-muted text-sm">
-                      {{ $t('Paste your content here to get started') }}
-                    </p>
+                    <CodeHighlight
+                      :code="input"
+                      :language="outputFormat"
+                    />
                   </div>
                 </template>
+                <template v-else-if="convertedOutputList.length > 0">
+                  <JsonFormatter
+                    v-if="outputFormat === 'json'"
+                    v-model:display-mode="jsonViewerDisplayMode"
+                    :input="finalOutput"
+                    :sort-keys="sortKeys"
+                    @update:output="() => {}"
+                    @update:error="() => {}"
+                  />
+                  <MultiFormatOutput
+                    v-else
+                    :outputs="convertedOutputList"
+                    :format="outputFormat"
+                    :label="outputFormat.toUpperCase()"
+                  />
+                </template>
+                <div
+                  v-else
+                  class="flex-1 flex flex-col min-h-0 overflow-auto bg-gray-50 dark:bg-gray-900/50 rounded-lg p-4 border border-gray-200 dark:border-gray-800 items-center justify-center"
+                >
+                  <p class="text-muted text-sm">
+                    {{ $t('Paste your content here to get started') }}
+                  </p>
+                </div>
               </template>
             </div>
           </div>

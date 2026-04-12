@@ -1,5 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath } from 'node:url'
+import { scopeDataVisorVite } from './app/vite-plugins/scopeDataVisorVite'
 
 const vBeautifulMermaidCss = fileURLToPath(new URL('./node_modules/v-beautiful-mermaid/dist/client.css', import.meta.url))
 
@@ -38,8 +39,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-15',
 
   vite: {
+    plugins: [scopeDataVisorVite()],
     ssr: {
-      noExternal: ['xml-js', 'v-beautiful-mermaid', 'beautiful-mermaid']
+      noExternal: [
+        'xml-js',
+        'v-beautiful-mermaid',
+        'beautiful-mermaid',
+        'data-visor-vue'
+      ]
     }
   },
 

@@ -1,22 +1,16 @@
 <script setup lang="ts">
-import VueJsonPretty from 'vue-json-pretty'
-import 'vue-json-pretty/lib/styles.css'
-import '~/assets/css/vue-json-pretty-enhanced.css'
-import { Formatter } from 'fracturedjsonjs'
+import { DataVisor, type ViewerDisplayMode } from 'data-visor-vue'
 import { parseJSON } from 'graceful-json'
-import CodeHighlight from './CodeHighlight.vue'
+import { sortObjectKeysDeep } from '~/utils/jsonViewerSerialize'
 
 interface Props {
   input: string
   sortKeys: boolean
-  useFractured?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  useFractured: true
-})
+const props = defineProps<Props>()
 
-const formatter = new Formatter()
+const displayMode = defineModel<ViewerDisplayMode>('displayMode', { default: 'tree' })
 
 const emit = defineEmits<{
   'update:output': [value: string]
@@ -28,9 +22,7 @@ const colorMode = useColorMode()
 const parsedJsonList = ref<unknown[]>([])
 const error = ref<string | null>(null)
 
-const jsonTheme = computed(() => {
-  return colorMode.value === 'dark' ? 'dark' : 'light'
-})
+const isJsonViewerDark = computed(() => colorMode.value === 'dark')
 
 const parseJson = () => {
   error.value = null
@@ -66,47 +58,20 @@ const updateOutputJson = () => {
     emit('update:output', '')
     return
   }
-  const outputs = sortedJsonList.value.map((json) => {
-    if (props.useFractured) {
-      return formatter.Serialize(json) ?? ''
-    } else {
-      return JSON.stringify(json, null, 2)
-    }
-  })
+  const outputs = sortedJsonList.value.map(json => JSON.stringify(json, null, 2))
   emit('update:output', outputs.join('\n\n'))
-}
-
-const sortObjectKeys = (obj: unknown): unknown => {
-  if (Array.isArray(obj)) {
-    return obj.map(sortObjectKeys)
-  } else if (obj !== null && typeof obj === 'object') {
-    return Object.keys(obj)
-      .sort()
-      .reduce((result, key) => {
-        result[key] = sortObjectKeys((obj as Record<string, unknown>)[key])
-        return result
-      }, {} as Record<string, unknown>)
-  }
-  return obj
 }
 
 const sortedJsonList = computed(() => {
   if (!props.sortKeys) {
     return parsedJsonList.value
   }
-  return parsedJsonList.value.map(sortObjectKeys)
+  return parsedJsonList.value.map(sortObjectKeysDeep)
 })
 
-const formattedDataList = computed(() => {
-  return sortedJsonList.value as (string | number | boolean | unknown[] | Record<string, unknown> | null)[]
-})
-
-const fracturedOutputList = computed((): string[] => {
-  if (!props.useFractured) {
-    return []
-  }
-  return sortedJsonList.value.map(json => formatter.Serialize(json) ?? '')
-})
+const prettyJsonStrings = computed(() =>
+  sortedJsonList.value.map(json => JSON.stringify(json, null, 2))
+)
 
 let parseTimeout: ReturnType<typeof setTimeout>
 watch(() => props.input, () => {
@@ -117,10 +82,6 @@ watch(() => props.input, () => {
 }, { immediate: true })
 
 watch(() => props.sortKeys, () => {
-  updateOutputJson()
-})
-
-watch(() => props.useFractured, () => {
   updateOutputJson()
 })
 </script>
@@ -149,8 +110,9 @@ watch(() => props.useFractured, () => {
     </div>
     <template v-if="sortedJsonList.length > 0 && !error">
       <div
-        v-for="(json, index) in sortedJsonList"
+        v-for="(_, index) in sortedJsonList"
         :key="index"
+        class="flex-1"
         :class="{ 'border-t border-gray-200 dark:border-gray-700': index > 0 }"
       >
         <div
@@ -159,18 +121,17 @@ watch(() => props.useFractured, () => {
         >
           JSON {{ index + 1 }}
         </div>
-        <CodeHighlight
-          v-if="useFractured"
-          :code="fracturedOutputList[index] ?? ''"
-          language="json"
-        />
-        <VueJsonPretty
-          v-else
-          :data="formattedDataList[index]"
-          :deep="10"
-          :theme="jsonTheme"
-          class="p-4"
-        />
+        <DataVisorHost>
+          <DataVisor
+            v-model:display-mode="displayMode"
+            :data="prettyJsonStrings[index] ?? ''"
+            lang="json"
+            :is-dark="isJsonViewerDark"
+            max-height="100%"
+            min-height="0"
+            class="h-full flex-1 min-h-0"
+          />
+        </DataVisorHost>
       </div>
     </template>
   </div>

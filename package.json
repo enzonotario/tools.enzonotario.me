@@ -19,6 +19,7 @@
     "@nuxtjs/i18n": "^10.2.3",
     "@pinia/nuxt": "^0.11.3",
     "@vueuse/core": "^14.2.1",
+    "data-visor-vue": "^0.0.4",
     "figlet": "^1.11.0",
     "fracturedjsonjs": "^5.0.1",
     "graceful-json": "^0.1.0",
@@ -31,12 +32,10 @@
     "nuxt": "^4.3.1",
     "nuxt-gtag": "^4.1.0",
     "pinia": "^3.0.4",
-    "pretty-xml-vue3": "^1.0.6",
     "shiki": "^4.0.2",
     "smol-toml": "^1.6.0",
     "v-beautiful-mermaid": "^0.0.3",
-    "v-code-diff": "^1.13.1",
-    "vue-json-pretty": "^2.6.0"
+    "v-code-diff": "^1.13.1"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
@@ -44,6 +43,8 @@
     "@types/lz-string": "^1.5.0",
     "@types/markdown-it": "^14.1.2",
     "eslint": "^10.0.3",
+    "postcss": "^8.5.9",
+    "postcss-prefix-selector": "^2.1.1",
     "typescript": "^5.9.3",
     "vue-tsc": "^3.2.5"
   },
