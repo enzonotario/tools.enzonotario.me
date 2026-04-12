@@ -487,7 +487,7 @@ onMounted(() => {
                   <USwitch v-model="sortKeys" />
                 </UFormField>
 
-                <UButtonGroup
+                <UFieldGroup
                   v-if="canShowTable"
                   size="sm"
                 >
@@ -507,7 +507,7 @@ onMounted(() => {
                   >
                     {{ $t('Table') }}
                   </UButton>
-                </UButtonGroup>
+                </UFieldGroup>
               </div>
             </div>
             <div class="flex-1 flex flex-col min-h-0">
