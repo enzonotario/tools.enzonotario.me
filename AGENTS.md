@@ -28,9 +28,9 @@ Use this file as the single source of truth when adding or changing code in this
 
 Tools that need “input full height + output panel” should follow the formatter/ascii-art pattern:
 
-- **Header actions**: put the **Clear** button and other primary toolbar actions in the dashboard header using `<Teleport to="#header-actions-portal">`. This keeps the header consistent and leaves the panes for content. Example:
+- **Header actions**: put the **Clear** button and other primary toolbar actions in the dashboard header using `<Teleport defer to="#header-actions-portal">` so the navbar portal exists before mount. This keeps the header consistent and leaves the panes for content. Example:
   ```vue
-  <Teleport to="#header-actions-portal">
+  <Teleport defer to="#header-actions-portal">
     <UButton variant="outline" size="sm" icon="i-lucide-x" @click="clearAll">
       {{ $t('Clear') }}
     </UButton>

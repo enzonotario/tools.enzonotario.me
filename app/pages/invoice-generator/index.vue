@@ -129,7 +129,10 @@ const handleImportJSON = () => {
 
 <template>
   <div class="split-pane-wrapper h-full">
-    <Teleport to="#header-actions-portal">
+    <Teleport
+      defer
+      to="#header-actions-portal"
+    >
       <div class="flex items-center gap-2">
         <USelectMenu
           v-model="invoiceStore.language"

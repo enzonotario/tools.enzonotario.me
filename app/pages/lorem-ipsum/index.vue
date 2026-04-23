@@ -109,7 +109,10 @@ onMounted(() => {
 
 <template>
   <div class="w-full h-full flex flex-col">
-    <Teleport to="#header-actions-portal">
+    <Teleport
+      defer
+      to="#header-actions-portal"
+    >
       <div class="flex items-center gap-2">
         <UButton
           size="sm"

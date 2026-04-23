@@ -95,7 +95,10 @@ const copyMetatag = async (tag: { name: string, value: string | undefined }) => 
 
 <template>
   <div>
-    <Teleport to="#header-actions-portal">
+    <Teleport
+      defer
+      to="#header-actions-portal"
+    >
       <div class="flex gap-2">
         <div class="flex-1 max-w-md">
           <UInput

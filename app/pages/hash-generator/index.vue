@@ -61,7 +61,10 @@ const clearAll = () => {
 
 <template>
   <div>
-    <Teleport to="#header-actions-portal">
+    <Teleport
+      defer
+      to="#header-actions-portal"
+    >
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
           {{ $t('Hash Generator') }}

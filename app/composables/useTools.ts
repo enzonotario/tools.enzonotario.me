@@ -88,6 +88,14 @@ export const useTools = () => {
       to: '/case-converter'
     },
     {
+      id: 'curl-builder',
+      label: t('Curl Builder'),
+      description: t('Build curl commands with method, URL, headers, params and body'),
+      icon: 'i-lucide-terminal-square',
+      category: 'development',
+      to: '/curl-builder'
+    },
+    {
       id: 'lorem-ipsum',
       label: t('Lorem Ipsum Generator'),
       description: t('Generate placeholder text for your designs'),
