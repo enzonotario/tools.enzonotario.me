@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { CodeDiff } from 'v-code-diff'
-
 type FormatType = 'text' | 'json' | 'xml' | 'yaml' | 'toml' | 'javascript' | 'typescript' | 'html' | 'css'
 
 type InputFormatType = FormatType | 'auto-detect'
@@ -18,14 +16,12 @@ const leftInput = ref('')
 const rightInput = ref('')
 const inputFormat = ref<InputFormatType>('auto-detect')
 const detectedFormat = ref<FormatType>('text')
-const diffMode = ref<'split' | 'unified'>('split')
 
 const handleShare = () => {
   share({
     leftInput: leftInput.value,
     rightInput: rightInput.value,
-    inputFormat: inputFormat.value,
-    diffMode: diffMode.value
+    inputFormat: inputFormat.value
   })
 }
 
@@ -34,13 +30,11 @@ onMounted(() => {
     leftInput?: string
     rightInput?: string
     inputFormat?: InputFormatType
-    diffMode?: 'split' | 'unified'
   }>()
   if (sharedData) {
     if (sharedData.leftInput) leftInput.value = sharedData.leftInput
     if (sharedData.rightInput) rightInput.value = sharedData.rightInput
     if (sharedData.inputFormat) inputFormat.value = sharedData.inputFormat
-    if (sharedData.diffMode) diffMode.value = sharedData.diffMode
   }
 })
 
@@ -137,31 +131,23 @@ const swapInputs = () => {
   rightInput.value = temp
 }
 
-// Mapping for language names
-// v-code-diff only supports: plaintext, HTML/XML, JavaScript, JSON, YAML, Python, Java, Bash, SQL
-const languageMap: Record<FormatType, string> = {
-  text: 'plaintext',
-  json: 'json',
-  xml: 'xml',
-  yaml: 'yaml',
-  toml: 'plaintext', // toml not supported, fallback to plaintext
-  javascript: 'javascript',
-  typescript: 'javascript', // typescript not supported, fallback to javascript
-  html: 'xml', // html maps to xml in v-code-diff
-  css: 'plaintext' // css not supported, fallback to plaintext
+const formatFilenames: Record<FormatType, string> = {
+  text: 'snippet.txt',
+  json: 'snippet.json',
+  xml: 'snippet.xml',
+  yaml: 'snippet.yaml',
+  toml: 'snippet.toml',
+  javascript: 'snippet.js',
+  typescript: 'snippet.ts',
+  html: 'snippet.html',
+  css: 'snippet.css'
 }
 
-const diffLanguage = computed(() => {
-  return languageMap[currentFormat.value] || 'plaintext'
-})
+const diffFilename = computed(() => formatFilenames[currentFormat.value] ?? 'snippet.txt')
 
-const outputFormat = computed(() => {
-  return diffMode.value === 'split' ? 'side-by-side' : 'line-by-line'
-})
+const pierreDiffStyle = 'split' as const
 
-const currentTheme = computed(() => {
-  return colorMode.value === 'dark' ? 'dark' : 'light'
-})
+const pierreThemeType = computed(() => (colorMode.value === 'dark' ? 'dark' : 'light'))
 </script>
 
 <template>
@@ -172,7 +158,7 @@ const currentTheme = computed(() => {
     >
       <div class="flex items-center gap-2">
         <span class="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
-          {{ $t('Text Diff') }}
+          {{ $t('Text Diff Comparison') }}
         </span>
         <div class="flex items-center gap-2">
           <span class="text-sm text-muted">{{ $t('Format') }}:</span>
@@ -205,20 +191,6 @@ const currentTheme = computed(() => {
         >
           {{ $t('Share') }}
         </UButton>
-
-        <div class="flex items-center gap-2">
-          <span class="text-sm text-muted">{{ $t('View') }}:</span>
-          <USelectMenu
-            v-model="diffMode"
-            :items="[
-              { label: $t('Split View'), value: 'split' },
-              { label: $t('Unified View'), value: 'unified' }
-            ]"
-            value-key="value"
-            label-key="label"
-            size="sm"
-          />
-        </div>
 
         <UButton
           variant="outline"
@@ -307,16 +279,15 @@ const currentTheme = computed(() => {
                   {{ $t('Differences') }}
                 </h3>
               </div>
-              <div class="flex-1 min-h-0 overflow-auto">
+              <div class="flex-1 min-h-0 flex flex-col overflow-auto">
                 <template v-if="leftInput || rightInput">
-                  <CodeDiff
-                    :old-string="leftInput"
-                    :new-string="rightInput"
-                    :output-format="outputFormat"
-                    :language="diffLanguage"
-                    :theme="currentTheme"
-                    :context="10"
-                    class="!my-0"
+                  <TextDiffPierreFileDiff
+                    class="flex-1 min-h-0 min-w-0"
+                    :left="leftInput"
+                    :right="rightInput"
+                    :diff-style="pierreDiffStyle"
+                    :theme-type="pierreThemeType"
+                    :filename="diffFilename"
                   />
                 </template>
                 <template v-else>

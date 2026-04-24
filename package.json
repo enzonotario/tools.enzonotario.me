@@ -17,6 +17,7 @@
     "@iconify-json/simple-icons": "^1.2.73",
     "@nuxt/ui": "^4.5.1",
     "@nuxtjs/i18n": "^10.2.3",
+    "@pierre/diffs": "^1.1.19",
     "@pinia/nuxt": "^0.11.3",
     "@vueuse/core": "^14.2.1",
     "data-visor-vue": "^0.0.4",
@@ -34,8 +35,7 @@
     "pinia": "^3.0.4",
     "shiki": "^4.0.2",
     "smol-toml": "^1.6.0",
-    "v-beautiful-mermaid": "^0.0.3",
-    "v-code-diff": "^1.13.1"
+    "v-beautiful-mermaid": "^0.0.3"
   },
   "devDependencies": {
     "@nuxt/eslint": "^1.15.2",
@@ -50,11 +50,6 @@
     "vue-tsc": "^3.2.5"
   },
   "packageManager": "pnpm@10.32.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "v-code-diff"
-    ]
-  },
   "volta": {
     "node": "22.22.0"
   }
