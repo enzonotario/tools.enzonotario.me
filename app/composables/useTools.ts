@@ -128,6 +128,14 @@ export const useTools = () => {
       to: '/mermaid-preview'
     },
     {
+      id: 'latency-animator',
+      label: t('Latency Animator'),
+      description: t('Create animated latency races with custom labels, images and speeds'),
+      icon: 'i-lucide-gauge',
+      category: 'design',
+      to: '/latency-animator'
+    },
+    {
       id: 'password-generator',
       label: t('Password Generator'),
       description: t('Generate secure, random passwords with customizable options'),
