@@ -113,6 +113,24 @@ const searchGroups = computed(() => {
           orientation="vertical"
         />
       </template>
+
+      <template #footer="{ collapsed }">
+        <div class="px-4 py-3 w-full">
+          <NuxtLink
+            to="https://github.com/enzonotario/tools.enzonotario.me"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex items-center gap-2 text-sm text-muted hover:text-highlighted transition-colors"
+            :class="collapsed ? 'justify-center' : ''"
+          >
+            <UIcon
+              name="i-lucide-github"
+              class="size-5"
+            />
+            <span v-if="!collapsed">GitHub</span>
+          </NuxtLink>
+        </div>
+      </template>
     </UDashboardSidebar>
 
     <UDashboardPanel>
