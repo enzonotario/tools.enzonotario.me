@@ -547,7 +547,7 @@ async function copyTime(tz: TimezoneEntry) {
                           class="relative flex flex-col items-center justify-center shrink-0 w-9 h-full border-r border-default/40 transition-colors cursor-pointer overflow-hidden"
                           :class="hourCellClass(cell)"
                           :data-hour-selected="cell.isSelected ? '' : undefined"
-                          :title="formatTime(cell.utcDate, row.tz.timezone, true)"
+                          :title="formatTime(cell.utcDate, row.tz.timezone, false)"
                           @click="selectTimelineHour(cell.utcDate)"
                         >
                           <span
@@ -558,13 +558,9 @@ async function copyTime(tz: TimezoneEntry) {
                           </span>
                           <span
                             v-else
-                            class="h-[9px]"
+                            class="h-[7px]"
                           />
-                          <span class="text-sm font-semibold tabular-nums leading-none">{{ cell.hour }}</span>
-                          <span
-                            class="text-[9px] uppercase leading-none"
-                            :class="cell.isDay ? 'text-amber-800/70 dark:text-amber-200/70' : 'text-zinc-700/80 dark:text-zinc-500'"
-                          >{{ cell.period }}</span>
+                          <span class="text-xs font-semibold tabular-nums leading-none">{{ String(cell.hour).padStart(2, '0') }}</span>
                         </button>
                       </div>
                     </div>

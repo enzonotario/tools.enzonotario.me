@@ -230,7 +230,6 @@ export function generateTimelineUtcSlots(
 export interface TimelineCell {
   utcDate: Date
   hour: number
-  period: 'am' | 'pm'
   isDay: boolean
   isSelected: boolean
   isNewDay: boolean
@@ -255,8 +254,6 @@ export function buildTimelineRow(
     }).format(slot)
 
     const hour24 = getHour(slot, timezone)
-    const hour12 = hour24 % 12 || 12
-    const period: 'am' | 'pm' = hour24 < 12 ? 'am' : 'pm'
     const isDay = isDayTime(slot, timezone)
     const isNewDay = dateKey !== prevDateKey
     prevDateKey = dateKey
@@ -276,8 +273,7 @@ export function buildTimelineRow(
 
     return {
       utcDate: slot,
-      hour: hour12,
-      period,
+      hour: hour24,
       isDay,
       isSelected,
       isNewDay,
@@ -287,17 +283,7 @@ export function buildTimelineRow(
 }
 
 export function formatTimeShort(date: Date, timezone: string): string {
-  const parts = new Intl.DateTimeFormat('en', {
-    timeZone: timezone,
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true
-  }).formatToParts(date)
-  const hour = parts.find(p => p.type === 'hour')!.value
-  const minute = parts.find(p => p.type === 'minute')!.value
-  const dayPeriod = parts.find(p => p.type === 'dayPeriod')!.value
-  const period = dayPeriod.charAt(0).toLowerCase()
-  return minute === '00' ? `${hour}${period}` : `${hour}:${minute}${period}`
+  return getTimeHHMM(date, timezone)
 }
 
 export function formatDateShort(date: Date, timezone: string, locale: string): string {
