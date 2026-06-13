@@ -208,6 +208,107 @@ export function isDayTime(date: Date, timezone: string): boolean {
   return hour >= 6 && hour < 20
 }
 
+export const TIMELINE_HOURS_BEFORE = 6
+export const TIMELINE_HOURS_TOTAL = 48
+
+export function floorToHour(date: Date): Date {
+  const d = new Date(date)
+  d.setMinutes(0, 0, 0)
+  return d
+}
+
+export function generateTimelineUtcSlots(
+  referenceDate: Date,
+  hoursBefore = TIMELINE_HOURS_BEFORE,
+  totalHours = TIMELINE_HOURS_TOTAL
+): Date[] {
+  const start = floorToHour(referenceDate)
+  start.setTime(start.getTime() - hoursBefore * 3_600_000)
+  return Array.from({ length: totalHours }, (_, i) => new Date(start.getTime() + i * 3_600_000))
+}
+
+export interface TimelineCell {
+  utcDate: Date
+  hour: number
+  period: 'am' | 'pm'
+  isDay: boolean
+  isSelected: boolean
+  isNewDay: boolean
+  dayLabel: string | null
+}
+
+export function buildTimelineRow(
+  timezone: string,
+  slots: Date[],
+  referenceDate: Date,
+  locale: string
+): TimelineCell[] {
+  const refMs = referenceDate.getTime()
+  let prevDateKey = ''
+
+  return slots.map((slot) => {
+    const dateKey = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).format(slot)
+
+    const hour24 = getHour(slot, timezone)
+    const hour12 = hour24 % 12 || 12
+    const period: 'am' | 'pm' = hour24 < 12 ? 'am' : 'pm'
+    const isDay = isDayTime(slot, timezone)
+    const isNewDay = dateKey !== prevDateKey
+    prevDateKey = dateKey
+
+    const slotStart = slot.getTime()
+    const isSelected = refMs >= slotStart && refMs < slotStart + 3_600_000
+
+    let dayLabel: string | null = null
+    if (isNewDay) {
+      dayLabel = new Intl.DateTimeFormat(locale, {
+        timeZone: timezone,
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      }).format(slot).toUpperCase()
+    }
+
+    return {
+      utcDate: slot,
+      hour: hour12,
+      period,
+      isDay,
+      isSelected,
+      isNewDay,
+      dayLabel
+    }
+  })
+}
+
+export function formatTimeShort(date: Date, timezone: string): string {
+  const parts = new Intl.DateTimeFormat('en', {
+    timeZone: timezone,
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  }).formatToParts(date)
+  const hour = parts.find(p => p.type === 'hour')!.value
+  const minute = parts.find(p => p.type === 'minute')!.value
+  const dayPeriod = parts.find(p => p.type === 'dayPeriod')!.value
+  const period = dayPeriod.charAt(0).toLowerCase()
+  return minute === '00' ? `${hour}${period}` : `${hour}:${minute}${period}`
+}
+
+export function formatDateShort(date: Date, timezone: string, locale: string): string {
+  return new Intl.DateTimeFormat(locale, {
+    timeZone: timezone,
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short'
+  }).format(date)
+}
+
 /** Returns the current "HH:MM" string for a date in a given timezone */
 export function getTimeHHMM(date: Date, timezone: string): string {
   const parts = new Intl.DateTimeFormat('en', {

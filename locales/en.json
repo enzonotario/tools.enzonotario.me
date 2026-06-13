@@ -276,6 +276,7 @@
   "timezoneEditHint": "Click on a time to edit",
   "timezoneClickToEdit": "Click to set time",
   "timezoneReference": "Reference",
+  "timezoneTimelineHint": "Click an hour to set the reference time",
   "Americas": "Americas",
   "Europe": "Europe",
   "Asia": "Asia",
