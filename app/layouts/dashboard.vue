@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
 
-const { t, locale, locales } = useI18n()
+const { t, locale, locales, getLocaleMessage } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
 const localePath = useLocalePath()
 const { tools, categories } = useTools()
+
+const localeMessages = computed(() => ({
+  en: getLocaleMessage('en') as Record<string, string>,
+  es: getLocaleMessage('es') as Record<string, string>
+}))
+
+const searchFuse = {
+  fuseOptions: {
+    keys: ['label', 'suffix', 'searchTerms']
+  }
+}
 const route = useRoute()
 const isSidebarCollapsed = ref(false)
 
@@ -51,6 +62,7 @@ const searchGroups = computed(() => {
       label: tool.label,
       icon: tool.icon,
       suffix: tool.description,
+      searchTerms: buildToolSearchTerms(tool, localeMessages.value),
       to: localePath(tool.to)
     }))
   }]
@@ -175,6 +187,9 @@ const searchGroups = computed(() => {
       </template>
     </UDashboardPanel>
 
-    <UDashboardSearch :groups="searchGroups" />
+    <UDashboardSearch
+      :groups="searchGroups"
+      :fuse="searchFuse"
+    />
   </UDashboardGroup>
 </template>
