@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
+import enMessages from '../../locales/en.json'
+import esMessages from '../../locales/es.json'
 
-const { t, locale, locales, getLocaleMessage } = useI18n()
+const { t, locale, locales } = useI18n()
 const switchLocalePath = useSwitchLocalePath()
 const localePath = useLocalePath()
 const { tools, categories } = useTools()
 
-const localeMessages = computed(() => ({
-  en: getLocaleMessage('en') as Record<string, string>,
-  es: getLocaleMessage('es') as Record<string, string>
-}))
+const localeMessages = {
+  en: enMessages,
+  es: esMessages
+}
 
 const searchFuse = {
   fuseOptions: {
@@ -62,7 +64,7 @@ const searchGroups = computed(() => {
       label: tool.label,
       icon: tool.icon,
       suffix: tool.description,
-      searchTerms: buildToolSearchTerms(tool, localeMessages.value),
+      searchTerms: buildToolSearchTerms(tool, localeMessages),
       to: localePath(tool.to)
     }))
   }]

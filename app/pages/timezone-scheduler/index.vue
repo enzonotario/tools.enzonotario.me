@@ -25,7 +25,8 @@ useSeoMeta({ title: t('Timezone Scheduler') })
 const tzCity = (tz: TimezoneEntry) => localizeCity(tz, locale.value)
 const tzCountry = (tz: TimezoneEntry) => localizeCountry(tz.countryCode, locale.value) || tz.country
 const toast = useToast()
-const { share, getSharedData } = useShare()
+const route = useRoute()
+const router = useRouter()
 
 // ── Live clock ────────────────────────────────────────────────────────────────
 const now = ref(new Date())
@@ -36,14 +37,13 @@ onMounted(() => {
     now.value = new Date()
   }, 1000)
 
-  const sharedData = getSharedData<{ timezones: string[], pinnedDate?: string | null }>()
-  if (sharedData?.timezones) {
-    selectedTimezoneIds.value = sharedData.timezones
-  }
-  if (sharedData?.pinnedDate) {
-    const d = new Date(sharedData.pinnedDate)
-    if (!isNaN(d.getTime())) {
-      pinnedDate.value = d
+  const shared = parseTimezoneSchedulerShare(route.query)
+  if (shared) {
+    selectedTimezoneIds.value = shared.timezones
+    if (shared.isLive) {
+      resumeLive()
+    } else if (shared.pinnedDate) {
+      pinnedDate.value = shared.pinnedDate
       isLive.value = false
     }
   }
@@ -277,11 +277,38 @@ function scrollTimelineToSelected() {
 watch(() => selectedTimezoneIds.value.length, scrollTimelineToSelected)
 
 // ── Share / copy ──────────────────────────────────────────────────────────────
-function handleShare() {
-  share({
-    timezones: selectedTimezones.value.map(tz => tz.timezone),
-    pinnedDate: isLive.value ? null : pinnedDate.value.toISOString()
-  })
+async function handleShare() {
+  try {
+    const query = buildTimezoneSchedulerQuery({
+      timezones: selectedTimezones.value.map(tz => tz.timezone),
+      isLive: isLive.value,
+      pinnedDate: isLive.value ? null : pinnedDate.value
+    })
+
+    await router.replace({ path: route.path, query })
+
+    const params = new URLSearchParams()
+    for (const [key, value] of Object.entries(query)) {
+      params.set(key, value)
+    }
+    const shareUrl = `${window.location.origin}${route.path}?${params.toString()}`
+    await navigator.clipboard.writeText(shareUrl)
+
+    toast.add({
+      title: t('Shared'),
+      description: t('Link copied to clipboard'),
+      icon: 'i-lucide-share-2',
+      color: 'success'
+    })
+  } catch (err) {
+    console.error('Failed to share:', err)
+    toast.add({
+      title: t('Error'),
+      description: t('Failed to generate share link'),
+      icon: 'i-lucide-alert-circle',
+      color: 'error'
+    })
+  }
 }
 
 async function copyTime(tz: TimezoneEntry) {
