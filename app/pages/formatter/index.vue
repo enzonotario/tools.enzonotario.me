@@ -4,8 +4,7 @@ import XmlFormatter from '~/components/json-xml-formatter/XmlFormatter.vue'
 import CodeHighlight from '~/components/json-xml-formatter/CodeHighlight.vue'
 import MultiFormatOutput from '~/components/json-xml-formatter/MultiFormatOutput.vue'
 import JsonTable from '~/components/json-xml-formatter/JsonTable.vue'
-import { toXML } from 'jstoxml'
-import xml2json from '@hendt/xml2json'
+import { jsonToXml, xmlToJson } from '~/utils/cruftlessXml'
 import yaml from 'js-yaml'
 import * as TOML from 'smol-toml'
 import { parseJSON } from 'graceful-json'
@@ -118,7 +117,7 @@ const convertToJson = async (content: string, fromFormat: FormatType): Promise<u
     case 'json':
       return JSON.parse(content)
     case 'xml':
-      return xml2json(content)
+      return xmlToJson(content)
     case 'yaml':
       return yaml.load(content)
     case 'toml':
@@ -131,7 +130,7 @@ const convertFromJson = (jsonObj: unknown, toFormat: FormatType): string => {
     case 'json':
       return JSON.stringify(jsonObj, null, 2)
     case 'xml':
-      return toXML(jsonObj, { header: true, indent: '  ' })
+      return jsonToXml(jsonObj)
     case 'yaml':
       return yaml.dump(jsonObj, { indent: 2, lineWidth: -1 })
     case 'toml':

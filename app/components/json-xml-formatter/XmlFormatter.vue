@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { DataVisor } from 'data-visor-vue'
+import { formatXml } from '~/utils/cruftlessXml'
 
 interface Props {
   input: string
@@ -33,17 +34,8 @@ const parseXml = () => {
       throw new Error('Invalid XML: must start with <')
     }
 
-    const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(trimmed, 'text/xml')
-
-    const parseError = xmlDoc.querySelector('parsererror')
-    if (parseError) {
-      const errorText = parseError.textContent || 'Invalid XML: parsing error'
-      throw new Error(errorText)
-    }
-
-    formattedXml.value = trimmed
-    emit('update:output', trimmed)
+    formattedXml.value = formatXml(trimmed)
+    emit('update:output', formattedXml.value)
     emit('update:error', null)
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Invalid XML'
